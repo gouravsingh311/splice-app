@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' http://127.0.0.1:*; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'" />
+  <title>FileEaters Enterprise</title>
+  <link rel="stylesheet" href="./styles/output.css" />
+</head>
+
+<body class="bg-brand-bg text-brand-text font-body antialiased" data-active-view="auth">
+
+  <div id="app-shell" class="fe-shell w-full bg-brand-bg text-brand-text">
+  <header id="shell-topbar" class="fe-topnav" role="banner">
+    <div class="fe-topnav-brand">
+      <img src="./assets/brand/fileeaters_logo.png" alt="FileEaters Enterprise" class="fe-brand-logo" />
+    </div>
+
+    <nav id="sidebar-primary-nav" class="fe-topnav-nav" role="navigation" aria-label="Primary workspace navigation">
+      <button class="fe-nav-item" data-nav="dashboard" data-testid="nav-dashboard" type="button">
+        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path
+            d="M2 10a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm8-5a1 1 0 0 1 1 1v3.586l1.707 1.707a1 1 0 0 1-1.414 1.414l-2-2A1 1 0 0 1 9 10V6a1 1 0 0 1 1-1Z" />
+        </svg>
+        Dashboard
+      </button>
+      <button class="fe-nav-item" data-nav="submissions" data-testid="nav-submissions" type="button">
+        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path d="M10 4a1 1 0 0 1 1 1v4h4a1 1 0 1 1 0 2h-4v4a1 1 0 1 1-2 0v-4H5a1 1 0 1 1 0-2h4V5a1 1 0 0 1 1-1Z" />
+        </svg>
+        Submissions
+      </button>
+      <button class="fe-nav-item fe-reviewer-only" data-nav="reviewer-queue" data-testid="nav-reviewer-queue" type="button">
+        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path d="M10 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+          <path fill-rule="evenodd"
+            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
+            clip-rule="evenodd" />
+        </svg>
+        Review Queue
+      </button>
+      <button class="fe-nav-item fe-reviewer-only" data-nav="reviewer-decision" data-testid="nav-reviewer-decision" type="button">
+        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd"
+            d="M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0Z"
+            clip-rule="evenodd" />
+        </svg>
+        Review Decision
+      </button>
+      <button class="fe-nav-item" data-nav="notifications" data-testid="nav-notifications" aria-label="Notifications, 0 unread" type="button">
+        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path
+            d="M10 2a6 6 0 0 0-6 6v3.586l-.707.707A1 1 0 0 0 4 14h12a1 1 0 0 0 .707-1.707L16 11.586V8a6 6 0 0 0-6-6ZM10 18a3 3 0 0 1-3-3h6a3 3 0 0 1-3 3Z" />
+        </svg>
+        Notifications
+        <span id="notif-unread-badge" class="fe-nav-badge hidden" data-testid="notifications-unread-badge" data-unread-count="0" aria-live="polite" aria-atomic="true" aria-label="Unread notifications: 0">0</span>
+      </button>
+      <button class="fe-nav-item fe-admin-only" data-nav="admin-ops" data-testid="nav-admin-ops" type="button">
+        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd"
+            d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 0 1-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 0 1 .947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 0 1 2.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 0 1 2.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 0 1 .947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 0 1-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 0 1-2.287-.947ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+            clip-rule="evenodd" />
+        </svg>
+        Admin Ops
+      </button>
+      <button class="fe-nav-item" data-nav="settings" data-testid="nav-settings" type="button">
+        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd"
+            d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-6-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm-2 4a5 5 0 0 0-4.546 2.916A5.986 5.986 0 0 0 10 16a5.986 5.986 0 0 0 4.546-2.084A5 5 0 0 0 10 11Z"
+            clip-rule="evenodd" />
+        </svg>
+        Settings
+      </button>
+    </nav>
+
+    <div class="fe-topnav-meta">
+      <span id="sidebar-role-badge" class="fe-role-badge">—</span>
+      <div class="fe-profile-menu">
+        <button id="profile-menu-trigger" class="fe-profile-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profile-menu-panel">
+          <span id="profile-initials" class="fe-profile-initials">U</span>
+        </button>
+        <div id="profile-menu-panel" class="fe-profile-panel hidden" role="menu" aria-label="Profile menu">
+          <p id="sidebar-actor-label" class="fe-sidebar-actor fe-actor-chip"></p>
+          <button class="fe-profile-option" data-nav="dashboard" type="button" role="menuitem">Dashboard</button>
+          <button class="fe-profile-option" data-nav="notifications" type="button" role="menuitem">Notifications</button>
+          <button class="fe-profile-option" data-nav="settings" type="button" role="menuitem">SSO Settings</button>
+          <button class="fe-profile-option fe-profile-logout" data-nav="auth" id="sidebar-signout-btn" type="button" role="menuitem">Logout</button>
+        </div>
+      </div>
+      <p class="fe-sidebar-version" id="sidebar-version">v1.0</p>
+    </div>
+  </header>
+
+  <div class="fe-shell-main flex flex-1 flex-col">
+    <main id="shell-content" class="fe-content">
+      <div id="view-mount" class="fe-content-wrap"></div>
+    </main>
+  </div>
+  </div>
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <script src="./renderer/core/auth/state.js"></script>
+  <script src="./renderer/features/auth/views/auth-view.js"></script>
+  <script src="./renderer/features/dashboard/views/dashboard-view.js"></script>
+  <script src="./renderer/core/navigation/route-policy.js"></script>
+  <script src="./renderer/workspace/pack-structure.js"></script>
+  <script src="./renderer/workspace/workflow-gates.js"></script>
+  <script src="./renderer/features/workspace/utils/qc-findings.js"></script>
+  <script src="./renderer/features/workspace/utils/markup.js"></script>
+  <script src="./renderer/features/workspace/utils/readiness.js"></script>
+  <script src="./renderer/features/workspace/components/wizard-nav.js"></script>
+  <script src="./renderer/features/workspace/components/airtable-step.js"></script>
+  <script src="./renderer/features/workspace/components/intake-step.js"></script>
+  <script src="./renderer/features/workspace/components/review-step.js"></script>
+  <script src="./renderer/features/workspace/components/submission-detail.js"></script>
+  <script src="./renderer/features/workspace/components/history-panel.js"></script>
+  <script src="./renderer/features/workspace/services/state.js"></script>
+  <script src="./renderer/features/workspace/services/ipc.js"></script>
+  <script src="./renderer/workspace/workspace-page.js"></script>
+  <script src="./renderer/features/workspace/views/submissions-view.js"></script>
+  <script src="./renderer/features/review/review-store.js"></script>
+  <script src="./renderer/features/review/review-page-utils.js"></script>
+  <script src="./renderer/features/review/review-detail-state.js"></script>
+  <script src="./renderer/features/review/review-detail-render.js"></script>
+  <script src="./renderer/features/review/review-detail-actions.js"></script>
+  <script src="./renderer/features/review/review-detail-wire.js"></script>
+  <script src="./renderer/features/review/review-queue-state.js"></script>
+  <script src="./renderer/features/review/review-queue-render.js"></script>
+  <script src="./renderer/features/review/review-queue-actions.js"></script>
+  <script src="./renderer/features/review/review-queue-page.js"></script>
+  <script src="./renderer/features/review/review-detail-page.js"></script>
+  <script src="./renderer/features/review/views/reviewer-queue-view.js"></script>
+  <script src="./renderer/features/review/views/reviewer-decision-view.js"></script>
+  <script src="./renderer/features/notifications/views/notifications-view.js"></script>
+  <script src="./renderer/ui/dropdown-menu.js"></script>
+  <script src="./renderer/features/notifications/notification-role.js"></script>
+  <script src="./renderer/features/notifications/notification-renderer.js"></script>
+  <script src="./renderer/features/admin/admin-page.js"></script>
+  <script src="./renderer/features/admin/views/admin-ops-view.js"></script>
+  <script src="./renderer/features/settings/views/settings-view.js"></script>
+  <script src="./renderer/features/qc/guidance-catalog.js"></script>
+  <!-- Renderer feature modules (extracted from renderer.js) -->
+  <script src="./renderer/features/qc/qc-admin.js"></script>
+  <script src="./renderer/features/notifications/notification-center.js"></script>
+  <script src="./renderer/features/ops/ops-flows.js"></script>
+  <script src="./renderer/ui/flowbite-wrappers.js"></script>
+  <script src="./renderer.js"></script>
+</body>
+
+</html>

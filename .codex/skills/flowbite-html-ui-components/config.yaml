@@ -1,0 +1,38 @@
+# Flowbite Skill Builder Configuration
+
+# Paths to SKILL.md template files
+skill_templates:
+  pre_file: "_pre_SKILL.md"
+  post_file: "_post_SKILL.md"
+
+# GitHub repository configuration
+github:
+  repo: "themesberg/flowbite"
+  branch: "main"
+  content_path: "content"
+  api_base: "https://api.github.com/repos"
+  raw_base: "https://raw.githubusercontent.com"
+
+# Title cleaning - regex patterns to remove from component titles
+# Patterns are applied in order, case-insensitive where appropriate
+title_cleanup:
+  - pattern: '^Tailwind\s+CSS\s+'
+    flags: "IGNORECASE"
+    description: "Remove 'Tailwind CSS' prefix"
+  
+  - pattern: '\s+-\s+Flowbite$'
+    flags: null
+    description: "Remove ' - Flowbite' suffix"
+
+# Component filtering - skip files/components matching these patterns
+skip_patterns:
+  # Skip files starting with underscore
+  - pattern: '^_.*\.md$'
+    description: "Skip files starting with underscore"
+  
+  - pattern: '^getting-started/.*\.md$'
+    description: "Skip getting started guides"
+  # Add more patterns here to skip specific components
+  # Example: 
+  # - pattern: 'deprecated.*\.md$'
+  #   description: "Skip deprecated components"

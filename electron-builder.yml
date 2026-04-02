@@ -1,0 +1,32 @@
+appId: com.fileeaters.splice
+productName: FileEaters Splice
+directories:
+  output: dist-app
+files:
+  - "**/*"
+  - "!.venv/**"
+  - "!.venv"
+  - "!**/.venv/**"
+  - "!**/.venv"
+  - "!**/.venv/bin/python"
+  - "!**/.venv/bin/python3"
+  - "!**/.venv/bin/python3.*"
+  - "!apps/api/.venv/**"
+  - "!**/__pycache__/**"
+  - "!**/*.pyc"
+  - "!data/**"
+  - "!.npm-cache/**"
+  - "!build/**"
+  - "!dist/**"
+  - "!dist-app/**"
+  - "!*.spec"
+  - "!scripts/**"
+extraResources:
+  - from: dist-python/splice_api
+    to: splice_api
+    filter: ['**/*']
+mac:
+  target: [dmg, zip]
+  category: public.app-category.productivity
+win:
+  target: [nsis]

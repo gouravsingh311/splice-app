@@ -1,0 +1,13 @@
+{
+  "packName": "Bad E2E Pack",
+  "labelName": "Test Label",
+  "releaseMonth": "2026-08",
+  "declaredTopLevelFolders": ["Artwork", "Description", "Demo"],
+  "audioZip": {
+    "filename": "Test Label - Bad E2E Pack.zip",
+    "sizeBytes": 220000
+  },
+  "sampleCount": 1201,
+  "containsUnsupportedNameTokens": true,
+  "expectedRuleHint": "SAMPLE_BIT_DEPTH_INVALID"
+}

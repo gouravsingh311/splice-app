@@ -1,0 +1,12 @@
+{
+  "packName": "Valid E2E Pack",
+  "labelName": "Test Label",
+  "releaseMonth": "2026-08",
+  "declaredTopLevelFolders": ["Artwork", "Audio", "Demo", "Description"],
+  "audioZip": {
+    "filename": "Test Label - Valid E2E Pack.zip",
+    "sizeBytes": 220000
+  },
+  "sampleCount": 320,
+  "containsUnsupportedNameTokens": false
+}
