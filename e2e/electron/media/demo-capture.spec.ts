@@ -29,9 +29,9 @@ for (const flow of FLOWS) {
       args: ['.'],
       env: {
         ...process.env,
-        FILEEATERS_ACTOR_ID: flow.actorId,
-        FILEEATERS_AUTH_ROLES: flow.actorRoles,
-        FILEEATERS_AUTH_STUB: 'true',
+        SPLICE_ACTOR_ID: flow.actorId,
+        SPLICE_AUTH_ROLES: flow.actorRoles,
+        SPLICE_AUTH_STUB: 'true',
         SPLICE_ENV: 'local',
         SPLICE_ENABLE_HEALTH_SERVER: 'false',
         SPLICE_SKIP_PYTHON_BACKEND: 'true',

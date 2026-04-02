@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "splice-api"
 version = "0.1.0"
-description = "PRD-00 FastAPI foundation scaffold for FileEaters Phase 1."
+description = "PRD-00 FastAPI foundation scaffold for Splice Phase 1."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

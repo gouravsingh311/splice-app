@@ -187,7 +187,7 @@ test("router returns deterministic unknown channel errors", async () => {
     logger: { error: () => {} },
   });
 
-  const response = await router.invoke("fileeaters.unknown.channel.v1", {}, {
+  const response = await router.invoke("splice.unknown.channel.v1", {}, {
     ...trustedSenderMetadata(),
   });
 
@@ -437,7 +437,7 @@ test("router registers only namespaced channels from registry", () => {
 
   assert.equal(registeredChannels.length, Object.keys(require("../electron/ipc/contracts").IPC_CONTRACT_REGISTRY).length);
   for (const entry of registeredChannels) {
-    assert.match(entry.channel, /^fileeaters\.[a-z0-9.-]+\.v1$/);
+    assert.match(entry.channel, /^splice\.[a-z0-9.-]+\.v1$/);
     assert.equal(typeof entry.handler, "function");
   }
 });

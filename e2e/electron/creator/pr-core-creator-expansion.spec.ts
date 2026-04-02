@@ -53,12 +53,12 @@ test.describe("Creator PR-core expansion scenarios", () => {
 
           if (typeof displayName === "string" && displayName.trim().length === 0) {
             throw new Error(
-              "Preload request validation failed for fileeaters.creator.profile.put.v1: displayName must be non-empty when provided",
+              "Preload request validation failed for splice.creator.profile.put.v1: displayName must be non-empty when provided",
             );
           }
           if (typeof labelName === "string" && labelName.trim().length === 0) {
             throw new Error(
-              "Preload request validation failed for fileeaters.creator.profile.put.v1: labelName must be non-empty when provided",
+              "Preload request validation failed for splice.creator.profile.put.v1: labelName must be non-empty when provided",
             );
           }
 
@@ -82,7 +82,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
       const savedProfile = await page.evaluate(async () => {
         const api = (window as any).electronAPI;
         return api.creator.profile.put({
-          actorId: "creator@fileeaters.local",
+          actorId: "creator@splice.local",
           userId: "me",
           displayName: "Casey Creator",
           labelName: "Neon Works",
@@ -109,7 +109,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
         const api = (window as any).electronAPI;
         try {
           await api.creator.profile.put({
-            actorId: "creator@fileeaters.local",
+            actorId: "creator@splice.local",
             userId: "me",
             displayName: "",
             labelName: "Should Not Persist",
@@ -652,7 +652,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
         const api = (window as any).electronAPI;
         const buildSubmission = (overrides: any) => ({
           submissionId: "sub-creator-history",
-          creatorId: "creator@fileeaters.local",
+          creatorId: "creator@splice.local",
           currentState: "draft",
           version: 1,
           packName: "Creator History Pack",
@@ -687,7 +687,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
         const submissions = [
           buildSubmission({
             submissionId: "sub-creator-final",
-            creatorId: "creator@fileeaters.local",
+            creatorId: "creator@splice.local",
             currentState: "approved",
             version: 5,
             packName: "Final Submission",
@@ -698,7 +698,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
           }),
           buildSubmission({
             submissionId: "sub-creator-draft",
-            creatorId: "creator@fileeaters.local",
+            creatorId: "creator@splice.local",
             currentState: "draft",
             version: 2,
             packName: "Editable Draft",
@@ -709,7 +709,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
           }),
           buildSubmission({
             submissionId: "sub-foreign",
-            creatorId: "reviewer@fileeaters.local",
+            creatorId: "reviewer@splice.local",
             currentState: "approved",
             version: 1,
             packName: "Foreign Pack",
@@ -735,7 +735,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
           ok: true,
           data: {
             submissions: submissions.filter(
-              (submission) => submission.creatorId === "creator@fileeaters.local",
+              (submission) => submission.creatorId === "creator@splice.local",
             ),
           },
         });
@@ -750,7 +750,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
                       transitionId: "tr-1",
                       fromState: "draft",
                       toState: "under_review",
-                      actorId: "creator@fileeaters.local",
+                      actorId: "creator@splice.local",
                       actorRole: "creator",
                       reason: "Submitted for review",
                       requestId: "req-1",
@@ -760,7 +760,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
                       transitionId: "tr-2",
                       fromState: "under_review",
                       toState: "approved",
-                      actorId: "reviewer@fileeaters.local",
+                      actorId: "reviewer@splice.local",
                       actorRole: "reviewer",
                       reason: "Approved",
                       reviewReasonCode: "APPROVED",
@@ -774,7 +774,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
                       transitionId: "tr-3",
                       fromState: "draft",
                       toState: "under_review",
-                      actorId: "creator@fileeaters.local",
+                      actorId: "creator@splice.local",
                       actorRole: "creator",
                       reason: "Submitted",
                       requestId: "req-3",
@@ -784,7 +784,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
                       transitionId: "tr-4",
                       fromState: "under_review",
                       toState: "rejected",
-                      actorId: "reviewer@fileeaters.local",
+                      actorId: "reviewer@splice.local",
                       actorRole: "reviewer",
                       reason: "Quality issue",
                       reviewReasonCode: "QUALITY_ISSUES",
@@ -796,7 +796,7 @@ test.describe("Creator PR-core expansion scenarios", () => {
                       transitionId: "tr-5",
                       fromState: "rejected",
                       toState: "draft",
-                      actorId: "reviewer@fileeaters.local",
+                      actorId: "reviewer@splice.local",
                       actorRole: "reviewer",
                       reason: "Reopened",
                       requestId: "req-5",

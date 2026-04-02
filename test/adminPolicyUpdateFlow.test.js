@@ -131,7 +131,7 @@ test("admin policy save flow sends policy update from admin actor and renders su
   const updateCalls = [];
 
   global.document = document;
-  global.fileeaters = {
+  global.splice = {
     admin: {
       qcPolicy: {
         async get() {
@@ -240,7 +240,7 @@ test("admin policy save flow sends policy update from admin actor and renders su
   assert.equal(saveButton.disabled, false);
 
   delete global.document;
-  delete global.fileeaters;
+  delete global.splice;
 });
 
 test("admin config rollback flow requires confirmation and reloads after success", async () => {
@@ -256,7 +256,7 @@ test("admin config rollback flow requires confirmation and reloads after success
 
   global.document = document;
   global.prompt = () => promptValues.shift() || "";
-  global.fileeaters = {
+  global.splice = {
     admin: {
       qcPolicy: {
         async get() {
@@ -374,7 +374,7 @@ test("admin config rollback flow requires confirmation and reloads after success
     assert.equal(elements.get("admin-config-feedback").textContent, "Rolled back cfg-1 to v3.");
   } finally {
     delete global.document;
-    delete global.fileeaters;
+    delete global.splice;
     delete global.prompt;
   }
 });

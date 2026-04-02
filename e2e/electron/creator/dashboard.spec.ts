@@ -197,7 +197,7 @@ test.describe("Creator dashboard scenarios", () => {
         "Dashboard data is temporarily unavailable.",
       );
       await expect(page.locator("#dashboard-submissions-status")).toContainText(
-        "Next step: confirm the FileEaters backend service is running, verify your network connection, then select Retry Dashboard Data.",
+        "Next step: confirm the Splice backend service is running, verify your network connection, then select Retry Dashboard Data.",
       );
       await expect(page.locator("#dashboard-recent-activity-body")).toContainText(
         "Submission service unavailable. Start the backend service, check connectivity, then retry dashboard data.",

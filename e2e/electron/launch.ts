@@ -19,9 +19,9 @@ export async function launchApp(options?: {
     args: [path.join(process.cwd(), 'electron/main.js')],
     env: {
       ...process.env,
-      FILEEATERS_AUTH_STUB: authStub ? 'true' : 'false',
-      FILEEATERS_ACTOR_ID: options?.actorId ?? 'e2e-user',
-      FILEEATERS_AUTH_ROLES: options?.actorRoles ?? 'creator',
+      SPLICE_AUTH_STUB: authStub ? 'true' : 'false',
+      SPLICE_ACTOR_ID: options?.actorId ?? 'e2e-user',
+      SPLICE_AUTH_ROLES: options?.actorRoles ?? 'creator',
       SPLICE_AUTH_ACCESS_SECRET: resolveEnvOrDefault(process.env.SPLICE_AUTH_ACCESS_SECRET, DEFAULT_E2E_AUTH_ACCESS_SECRET),
       SPLICE_INTERNAL_API_TOKEN: resolveEnvOrDefault(process.env.SPLICE_INTERNAL_API_TOKEN, DEFAULT_E2E_INTERNAL_API_TOKEN),
       SPLICE_ENV: resolveEnvOrDefault(process.env.SPLICE_ENV, 'local'),

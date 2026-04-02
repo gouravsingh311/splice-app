@@ -174,7 +174,7 @@ async function patchPackSelection(page: Page, selection: Awaited<ReturnType<type
       api.intake.selectFolder = async () => ({ ok: true, data: folderSelection });
     };
 
-    patch((window as any).fileeaters);
+    patch((window as any).splice);
     patch((window as any).electronAPI);
   }, selection);
 }
@@ -219,7 +219,7 @@ async function patchLinkedAirtableSync(
       });
     };
 
-    patch((window as any).fileeaters);
+    patch((window as any).splice);
     patch((window as any).electronAPI);
   }, options);
 }

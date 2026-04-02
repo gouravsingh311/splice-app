@@ -137,7 +137,7 @@ def test_creator_profile_get_and_put_roundtrip() -> None:
             "actor_id": "creator-1",
             "user_id": "me",
             "display_name": "Creator One",
-            "label_name": "FileEaters",
+            "label_name": "Splice",
             "defaults_json": {"genre": "house"},
         },
     )
@@ -146,7 +146,7 @@ def test_creator_profile_get_and_put_roundtrip() -> None:
     payload = updated.json()
     assert payload["user_id"] == "creator-1"
     assert payload["display_name"] == "Creator One"
-    assert payload["label_name"] == "FileEaters"
+    assert payload["label_name"] == "Splice"
     assert payload["defaults_json"] == {
         "genre": "house",
         "notifications": {"approval_email_enabled": False},
@@ -358,7 +358,7 @@ def test_sync_submission_airtable_links_single_record() -> None:
                     record_id="rec-sync",
                     record_url="https://airtable.com/base/rec-sync",
                     created_at="2026-03-06T10:00:00.000Z",
-                    label_name="FileEaters",
+                    label_name="Splice",
                     pack_name="Draft Pack",
                     release_month="2026-09",
                     notes="Ready for review",
@@ -403,7 +403,7 @@ def test_sync_submission_airtable_marks_duplicate_records() -> None:
             record_id="rec-1",
             record_url="https://airtable.com/base/rec-1",
             created_at="2026-03-06T09:00:00.000Z",
-            label_name="FileEaters",
+            label_name="Splice",
             pack_name="Draft Pack",
             release_month="2026-09",
             notes=None,
@@ -414,7 +414,7 @@ def test_sync_submission_airtable_marks_duplicate_records() -> None:
             record_id="rec-2",
             record_url="https://airtable.com/base/rec-2",
             created_at="2026-03-06T10:00:00.000Z",
-            label_name="FileEaters",
+            label_name="Splice",
             pack_name="Draft Pack",
             release_month="2026-09",
             notes=None,

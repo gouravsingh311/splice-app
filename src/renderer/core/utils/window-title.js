@@ -1,9 +1,9 @@
 function normalizeAppName(appName) {
-  return String(appName || "Splice App")
-    .replace(/[-_]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  if (!appName) return "App";
+  return appName
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 function buildWindowTitle(appName) {

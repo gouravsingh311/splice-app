@@ -30,7 +30,7 @@ async function capturePage(page, target, viewport) {
   ensureDir(viewportDir);
 
   const screenshotPath = path.join(viewportDir, 'screenshot.png');
-  const status = await page.goto(`https://acme-sanidhya.fileeaters.org${target.path}`, {
+  const status = await page.goto(`https://acme-sanidhya.splice.org${target.path}`, {
     waitUntil: 'networkidle',
   });
   if (!status || status.status() >= 400) {
@@ -84,7 +84,7 @@ async function run() {
   const context = await browser.newContext();
   const page = await context.newPage();
 
-  await page.goto('https://acme-sanidhya.fileeaters.org/login', { waitUntil: 'domcontentloaded' });
+  await page.goto('https://acme-sanidhya.splice.org/login', { waitUntil: 'domcontentloaded' });
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
   const submitButton = await page.waitForSelector('button[type="submit"], input[type="submit"], button:has-text("Sign In")', { timeout: 30000 });

@@ -12,7 +12,7 @@ test.describe("Admin operations and notifications scenarios", () => {
     let window: any;
 
     test.beforeAll(async () => {
-        const launched = await launchDesktop({ actorId: "admin@fileeaters.local", actorRoles: "admin" });
+        const launched = await launchDesktop({ actorId: "admin@splice.local", actorRoles: "admin" });
         app = launched.app;
         window = await app.firstWindow();
         shellPage = new ShellPage(window);

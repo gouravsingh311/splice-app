@@ -176,7 +176,7 @@ test("renderer login and forgot/reset run-path renders success feedback", async 
   global.document = document;
   global.window = {
     authUiState,
-    fileeaters: {
+    splice: {
       system: {
         versions: { electron: "40.6.0", chrome: "144.0.0.0" },
         runtime: { environment: "local", healthPort: 4815 },

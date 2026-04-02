@@ -2,7 +2,7 @@ import { _electron as electron, expect } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 
-const PACK_PATH = '/Users/Vijay/Documents/FileEaters/Splice Sample Packs/Test Press - Serum 2 DnB Essentials';
+const PACK_PATH = '/Users/Vijay/Documents/Splice/Splice Sample Packs/Test Press - Serum 2 DnB Essentials';
 const ACTOR_ID = 'admin-policy-scenario';
 const EMAIL = 'admin-policy-scenario@example.com';
 const PASSWORD = 'SuperSecretPassword123!';
@@ -132,8 +132,8 @@ async function main() {
     args: [path.join(process.cwd(), 'electron/main.js')],
     env: {
       ...process.env,
-      FILEEATERS_ACTOR_ID: ACTOR_ID,
-      FILEEATERS_AUTH_ROLES: 'admin',
+      SPLICE_ACTOR_ID: ACTOR_ID,
+      SPLICE_AUTH_ROLES: 'admin',
       SPLICE_DB_PATH: './data/test.db',
       SPLICE_HEALTH_PORT: '0',
       NODE_ENV: 'test',

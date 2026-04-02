@@ -19,7 +19,7 @@ const targets = [
   { name: 'settings', viewId: 'settings' },
 ];
 
-const loginEmail = process.env.PARITY_LOCAL_EMAIL || 'parity-capture-user@fileeaters.local';
+const loginEmail = process.env.PARITY_LOCAL_EMAIL || 'parity-capture-user@splice.local';
 const loginPassword = process.env.PARITY_LOCAL_PASSWORD || 'desktop-parity-pass';
 
 function ensureDir(dir) {
@@ -310,7 +310,7 @@ async function run() {
             },
           },
         };
-        window.fileeaters = mockApi;
+        window.splice = mockApi;
         window.electronAPI = mockApi;
       });
 

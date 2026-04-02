@@ -28,7 +28,7 @@ def _append_event(
             actor_id=actor_id,
             action=AuditAction.desktop_ipc_denied,
             entity_type=AuditEntityType.desktop,
-            entity_id="fileeaters.audit.security-events.list.v1",
+            entity_id="splice.audit.security-events.list.v1",
             metadata={"reason": "ROLE_FORBIDDEN"},
             idempotency_key=idempotency_key,
         )

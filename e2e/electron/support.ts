@@ -13,9 +13,9 @@ export const API_BASE_URL = process.env.PW_API_BASE_URL ?? "http://127.0.0.1:801
 const E2E_PACK_PATH = process.env.E2E_PACK_PATH ?? path.join(process.cwd(), "e2e/fixtures/valid_pack");
 
 export const SEEDED_E2E_ACCOUNTS = {
-  creator: { email: "creator@fileeaters.local", password: "CreatorPass123!" },
-  reviewer: { email: "reviewer@fileeaters.local", password: "ReviewerPass123!" },
-  admin: { email: "admin@fileeaters.local", password: "AdminPass123!" },
+  creator: { email: "creator@splice.local", password: "CreatorPass123!" },
+  reviewer: { email: "reviewer@splice.local", password: "ReviewerPass123!" },
+  admin: { email: "admin@splice.local", password: "AdminPass123!" },
 } as const;
 
 export type SeededE2ERole = keyof typeof SEEDED_E2E_ACCOUNTS;
@@ -73,8 +73,8 @@ export async function launchDesktop(options?: {
     args: ["."],
     env: {
       ...process.env,
-      FILEEATERS_ACTOR_ID: actorId,
-      FILEEATERS_AUTH_ROLES: actorRoles,
+      SPLICE_ACTOR_ID: actorId,
+      SPLICE_AUTH_ROLES: actorRoles,
       SPLICE_AUTH_ACCESS_SECRET: authAccessSecret,
       SPLICE_INTERNAL_API_TOKEN: internalToken,
       SPLICE_SEED_NOTIFICATIONS: options?.seedNotifications === false ? "false" : "true",
@@ -160,14 +160,14 @@ export async function installRendererApiShim(page: Page, exportPath?: string, sh
       });
 
       const install = () => {
-        if (!(window as any).fileeaters) {
+        if (!(window as any).splice) {
           return;
         }
         if ((window as any).__pwE2EShimInstalled) {
           return;
         }
 
-        const baseApi = (window as any).fileeaters;
+        const baseApi = (window as any).splice;
         const qcRuns: Record<string, any[]> = {};
 
         const shim = {

@@ -4,7 +4,7 @@ import { getSeededAccount, installRendererApiShim, launchDesktop, loginViaUi, na
 test.describe("Admin policy scenarios", () => {
   test("[AD-003] save policy action returns deterministic feedback", async () => {
     const { email, password } = getSeededAccount("admin");
-    const { app, page, apiUrl } = await launchDesktop({ actorId: "admin@fileeaters.local", actorRoles: "creator,admin" });
+    const { app, page, apiUrl } = await launchDesktop({ actorId: "admin@splice.local", actorRoles: "creator,admin" });
 
     try {
       await installRendererApiShim(page, undefined, apiUrl);
@@ -13,7 +13,7 @@ test.describe("Admin policy scenarios", () => {
       await expect(page.locator("#admin-policy-id-input")).toBeVisible();
       await page.evaluate(() => {
         if ((window as any).viewAdminOps?.wire) {
-          void (window as any).viewAdminOps.wire({ api: (window as any).electronAPI || (window as any).fileeaters });
+          void (window as any).viewAdminOps.wire({ api: (window as any).electronAPI || (window as any).splice });
         }
       });
       const reasonInput = page.locator("#admin-policy-reason-input");

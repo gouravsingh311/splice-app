@@ -5,148 +5,777 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' http://127.0.0.1:*; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'" />
-  <title>FileEaters Enterprise</title>
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:*; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'" />
+  <title>SPLICE — AI Audio</title>
   <link rel="stylesheet" href="./styles/output.css" />
+  <style>
+    /* ── Design tokens ─────────────────────────── */
+    :root {
+      --bg: #0d0f14;
+      --surface: #161a24;
+      --surface2: #1e2332;
+      --border: #2a3045;
+      --accent: #6c63ff;
+      --accent2: #00d4aa;
+      --text: #e8eaf0;
+      --text-dim: #7a8199;
+      --error: #ff4d6d;
+      --warn: #ffd166;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-app-region: no-drag;
+    }
+
+    /* ── Topbar ─────────────────────────────────── */
+    #topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      -webkit-app-region: drag;
+      flex-shrink: 0;
+    }
+    #topbar-brand {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      -webkit-app-region: no-drag;
+    }
+    #topbar-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-dim);
+      -webkit-app-region: no-drag;
+    }
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      transition: background 0.3s;
+    }
+    .status-dot.connected { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+    .status-dot.error { background: var(--error); }
+    .status-dot.pulsing { animation: pulse 1.2s ease-in-out infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ── Main layout ──────────────────────────── */
+    #app-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ─────────────────────────────── */
+    #sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 16px;
+      gap: 12px;
+      overflow-y: auto;
+    }
+    .sidebar-section {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+      padding: 0 4px;
+      margin-top: 8px;
+    }
+
+    /* Source selector */
+    .source-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .source-card:hover { border-color: var(--accent); }
+    .source-card.active {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, var(--surface2));
+    }
+    .source-card .icon { font-size: 18px; }
+    .source-card .label { font-size: 13px; font-weight: 500; }
+    .source-card .desc { font-size: 11px; color: var(--text-dim); }
+
+    /* Sliders */
+    .param-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .param-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .param-label span:last-child { color: var(--accent2); font-weight: 600; }
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--accent);
+      height: 4px;
+      cursor: pointer;
+    }
+
+    /* ── Main panel ───────────────────────────── */
+    #main-panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 24px;
+      gap: 20px;
+    }
+
+    /* Waveform visualizer */
+    #visualizer-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      height: 140px;
+      flex-shrink: 0;
+    }
+    #waveform {
+      width: 100%;
+      height: 100%;
+    }
+    #vis-label {
+      position: absolute;
+      bottom: 10px;
+      right: 14px;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* Big round record button */
+    #controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      flex-shrink: 0;
+    }
+    #btn-record {
+      width: 76px; height: 76px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      transition: all 0.2s;
+      position: relative;
+    }
+    #btn-record:hover { background: color-mix(in srgb, var(--accent) 15%, transparent); }
+    #btn-record.recording {
+      border-color: var(--error);
+      animation: ring-pulse 1s ease-in-out infinite;
+    }
+    #btn-record.recording:hover { background: color-mix(in srgb, var(--error) 15%, transparent); }
+    @keyframes ring-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--error) 40%, transparent); }
+      50% { box-shadow: 0 0 0 12px color-mix(in srgb, var(--error) 0%, transparent); }
+    }
+
+    .ctrl-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .ctrl-stat .val {
+      font-size: 26px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+    .ctrl-stat .key {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+    }
+
+    /* Log / event stream */
+    #log-panel {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    #btn-clear {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    #btn-clear:hover { color: var(--text); }
+    #log-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    }
+    .log-entry {
+      display: flex;
+      gap: 10px;
+      padding: 4px 16px;
+      border-left: 2px solid transparent;
+      transition: background 0.1s;
+    }
+    .log-entry:hover { background: var(--surface2); }
+    .log-entry.info { border-color: var(--accent2); }
+    .log-entry.ack  { border-color: var(--accent); }
+    .log-entry.warn { border-color: var(--warn); }
+    .log-entry.error { border-color: var(--error); }
+    .log-time { color: var(--text-dim); flex-shrink: 0; }
+    .log-msg { color: var(--text); word-break: break-all; }
+
+    /* Status pill at the bottom */
+    #status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+    #state-pill {
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    #state-pill.streaming { background: color-mix(in srgb, var(--accent2) 20%, transparent); border-color: var(--accent2); color: var(--accent2); }
+    #state-pill.error     { background: color-mix(in srgb, var(--error) 20%, transparent); border-color: var(--error); color: var(--error); }
+    #state-pill.connecting { background: color-mix(in srgb, var(--warn) 20%, transparent); border-color: var(--warn); color: var(--warn); }
+  </style>
 </head>
 
-<body class="bg-brand-bg text-brand-text font-body antialiased" data-active-view="auth">
+<body>
 
-  <div id="app-shell" class="fe-shell w-full bg-brand-bg text-brand-text">
-  <header id="shell-topbar" class="fe-topnav" role="banner">
-    <div class="fe-topnav-brand">
-      <img src="./assets/brand/fileeaters_logo.png" alt="FileEaters Enterprise" class="fe-brand-logo" />
-    </div>
-
-    <nav id="sidebar-primary-nav" class="fe-topnav-nav" role="navigation" aria-label="Primary workspace navigation">
-      <button class="fe-nav-item" data-nav="dashboard" data-testid="nav-dashboard" type="button">
-        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path
-            d="M2 10a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm8-5a1 1 0 0 1 1 1v3.586l1.707 1.707a1 1 0 0 1-1.414 1.414l-2-2A1 1 0 0 1 9 10V6a1 1 0 0 1 1-1Z" />
-        </svg>
-        Dashboard
-      </button>
-      <button class="fe-nav-item" data-nav="submissions" data-testid="nav-submissions" type="button">
-        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path d="M10 4a1 1 0 0 1 1 1v4h4a1 1 0 1 1 0 2h-4v4a1 1 0 1 1-2 0v-4H5a1 1 0 1 1 0-2h4V5a1 1 0 0 1 1-1Z" />
-        </svg>
-        Submissions
-      </button>
-      <button class="fe-nav-item fe-reviewer-only" data-nav="reviewer-queue" data-testid="nav-reviewer-queue" type="button">
-        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path d="M10 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
-          <path fill-rule="evenodd"
-            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
-            clip-rule="evenodd" />
-        </svg>
-        Review Queue
-      </button>
-      <button class="fe-nav-item fe-reviewer-only" data-nav="reviewer-decision" data-testid="nav-reviewer-decision" type="button">
-        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd"
-            d="M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0Z"
-            clip-rule="evenodd" />
-        </svg>
-        Review Decision
-      </button>
-      <button class="fe-nav-item" data-nav="notifications" data-testid="nav-notifications" aria-label="Notifications, 0 unread" type="button">
-        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path
-            d="M10 2a6 6 0 0 0-6 6v3.586l-.707.707A1 1 0 0 0 4 14h12a1 1 0 0 0 .707-1.707L16 11.586V8a6 6 0 0 0-6-6ZM10 18a3 3 0 0 1-3-3h6a3 3 0 0 1-3 3Z" />
-        </svg>
-        Notifications
-        <span id="notif-unread-badge" class="fe-nav-badge hidden" data-testid="notifications-unread-badge" data-unread-count="0" aria-live="polite" aria-atomic="true" aria-label="Unread notifications: 0">0</span>
-      </button>
-      <button class="fe-nav-item fe-admin-only" data-nav="admin-ops" data-testid="nav-admin-ops" type="button">
-        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd"
-            d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 0 1-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 0 1 .947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 0 1 2.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 0 1 2.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 0 1 .947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 0 1-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 0 1-2.287-.947ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-            clip-rule="evenodd" />
-        </svg>
-        Admin Ops
-      </button>
-      <button class="fe-nav-item" data-nav="settings" data-testid="nav-settings" type="button">
-        <svg class="fe-nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd"
-            d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-6-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm-2 4a5 5 0 0 0-4.546 2.916A5.986 5.986 0 0 0 10 16a5.986 5.986 0 0 0 4.546-2.084A5 5 0 0 0 10 11Z"
-            clip-rule="evenodd" />
-        </svg>
-        Settings
-      </button>
-    </nav>
-
-    <div class="fe-topnav-meta">
-      <span id="sidebar-role-badge" class="fe-role-badge">—</span>
-      <div class="fe-profile-menu">
-        <button id="profile-menu-trigger" class="fe-profile-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profile-menu-panel">
-          <span id="profile-initials" class="fe-profile-initials">U</span>
-        </button>
-        <div id="profile-menu-panel" class="fe-profile-panel hidden" role="menu" aria-label="Profile menu">
-          <p id="sidebar-actor-label" class="fe-sidebar-actor fe-actor-chip"></p>
-          <button class="fe-profile-option" data-nav="dashboard" type="button" role="menuitem">Dashboard</button>
-          <button class="fe-profile-option" data-nav="notifications" type="button" role="menuitem">Notifications</button>
-          <button class="fe-profile-option" data-nav="settings" type="button" role="menuitem">SSO Settings</button>
-          <button class="fe-profile-option fe-profile-logout" data-nav="auth" id="sidebar-signout-btn" type="button" role="menuitem">Logout</button>
-        </div>
-      </div>
-      <p class="fe-sidebar-version" id="sidebar-version">v1.0</p>
+  <!-- ══ TOPBAR ══════════════════════════════════════════════════════════ -->
+  <header id="topbar">
+    <div id="topbar-brand">SPLICE</div>
+    <div id="topbar-status">
+      <div class="status-dot" id="backend-dot"></div>
+      <span id="backend-label">Checking backend…</span>
     </div>
   </header>
 
-  <div class="fe-shell-main flex flex-1 flex-col">
-    <main id="shell-content" class="fe-content">
-      <div id="view-mount" class="fe-content-wrap"></div>
-    </main>
-  </div>
+  <!-- ══ BODY ════════════════════════════════════════════════════════════ -->
+  <div id="app-body">
+
+    <!-- ── Sidebar ───────────────────────────────────────────────── -->
+    <aside id="sidebar">
+
+      <div class="sidebar-section">Audio Source</div>
+
+      <div class="source-card active" id="src-mic" data-source="mic">
+        <span class="icon">🎤</span>
+        <div>
+          <div class="label">Microphone</div>
+          <div class="desc">Captures your voice input</div>
+        </div>
+      </div>
+
+      <div class="source-card" id="src-system" data-source="system">
+        <span class="icon">🔊</span>
+        <div>
+          <div class="label">System Audio</div>
+          <div class="desc">Captures desktop playback</div>
+        </div>
+      </div>
+
+      <div class="source-card" id="src-both" data-source="both">
+        <span class="icon">🎧</span>
+        <div>
+          <div class="label">Both</div>
+          <div class="desc">Mic + system audio merged</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section" style="margin-top:16px;">Parameters</div>
+
+      <div class="param-row">
+        <div class="param-label">
+          <span>Chunk interval</span>
+          <span id="chunk-val">100ms</span>
+        </div>
+        <input type="range" id="chunk-slider" min="50" max="500" step="50" value="100" />
+      </div>
+
+      <div class="param-row">
+        <div class="param-label">
+          <span>Sample rate</span>
+          <span id="rate-val">16 kHz</span>
+        </div>
+        <input type="range" id="rate-slider" min="8000" max="48000" step="8000" value="16000" />
+      </div>
+
+      <div class="sidebar-section" style="margin-top:16px;">Encoding</div>
+
+      <div class="source-card active" id="enc-pcm" data-enc="pcm_float32">
+        <span class="icon">📊</span>
+        <div>
+          <div class="label">PCM Float32</div>
+          <div class="desc">Raw — lowest latency</div>
+        </div>
+      </div>
+      <div class="source-card" id="enc-webm" data-enc="webm_opus">
+        <span class="icon">🗜</span>
+        <div>
+          <div class="label">WebM / Opus</div>
+          <div class="desc">Compressed — smaller chunks</div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── Main Panel ────────────────────────────────────────────── -->
+    <section id="main-panel">
+
+      <!-- Waveform -->
+      <div id="visualizer-wrap">
+        <canvas id="waveform"></canvas>
+        <span id="vis-label">WAVEFORM</span>
+      </div>
+
+      <!-- Controls -->
+      <div id="controls">
+        <div class="ctrl-stat">
+          <div class="val" id="stat-chunks">0</div>
+          <div class="key">Chunks ACK'd</div>
+        </div>
+
+        <button id="btn-record" title="Start / Stop recording">🎙</button>
+
+        <div class="ctrl-stat">
+          <div class="val" id="stat-time">00:00</div>
+          <div class="key">Duration</div>
+        </div>
+      </div>
+
+      <!-- Event log -->
+      <div id="log-panel">
+        <div id="log-header">
+          <span>Event Stream</span>
+          <button id="btn-clear">Clear</button>
+        </div>
+        <div id="log-list"></div>
+        <div id="status-bar">
+          <span>State:</span>
+          <span id="state-pill">idle</span>
+          <span id="session-label" style="margin-left:auto;"></span>
+        </div>
+      </div>
+
+    </section>
   </div>
 
-  <!-- ═══ SCRIPTS ═══ -->
-  <script src="./renderer/core/auth/state.js"></script>
-  <script src="./renderer/features/auth/views/auth-view.js"></script>
-  <script src="./renderer/features/dashboard/views/dashboard-view.js"></script>
-  <script src="./renderer/core/navigation/route-policy.js"></script>
-  <script src="./renderer/workspace/pack-structure.js"></script>
-  <script src="./renderer/workspace/workflow-gates.js"></script>
-  <script src="./renderer/features/workspace/utils/qc-findings.js"></script>
-  <script src="./renderer/features/workspace/utils/markup.js"></script>
-  <script src="./renderer/features/workspace/utils/readiness.js"></script>
-  <script src="./renderer/features/workspace/components/wizard-nav.js"></script>
-  <script src="./renderer/features/workspace/components/airtable-step.js"></script>
-  <script src="./renderer/features/workspace/components/intake-step.js"></script>
-  <script src="./renderer/features/workspace/components/review-step.js"></script>
-  <script src="./renderer/features/workspace/components/submission-detail.js"></script>
-  <script src="./renderer/features/workspace/components/history-panel.js"></script>
-  <script src="./renderer/features/workspace/services/state.js"></script>
-  <script src="./renderer/features/workspace/services/ipc.js"></script>
-  <script src="./renderer/workspace/workspace-page.js"></script>
-  <script src="./renderer/features/workspace/views/submissions-view.js"></script>
-  <script src="./renderer/features/review/review-store.js"></script>
-  <script src="./renderer/features/review/review-page-utils.js"></script>
-  <script src="./renderer/features/review/review-detail-state.js"></script>
-  <script src="./renderer/features/review/review-detail-render.js"></script>
-  <script src="./renderer/features/review/review-detail-actions.js"></script>
-  <script src="./renderer/features/review/review-detail-wire.js"></script>
-  <script src="./renderer/features/review/review-queue-state.js"></script>
-  <script src="./renderer/features/review/review-queue-render.js"></script>
-  <script src="./renderer/features/review/review-queue-actions.js"></script>
-  <script src="./renderer/features/review/review-queue-page.js"></script>
-  <script src="./renderer/features/review/review-detail-page.js"></script>
-  <script src="./renderer/features/review/views/reviewer-queue-view.js"></script>
-  <script src="./renderer/features/review/views/reviewer-decision-view.js"></script>
-  <script src="./renderer/features/notifications/views/notifications-view.js"></script>
-  <script src="./renderer/ui/dropdown-menu.js"></script>
-  <script src="./renderer/features/notifications/notification-role.js"></script>
-  <script src="./renderer/features/notifications/notification-renderer.js"></script>
-  <script src="./renderer/features/admin/admin-page.js"></script>
-  <script src="./renderer/features/admin/views/admin-ops-view.js"></script>
-  <script src="./renderer/features/settings/views/settings-view.js"></script>
-  <script src="./renderer/features/qc/guidance-catalog.js"></script>
-  <!-- Renderer feature modules (extracted from renderer.js) -->
-  <script src="./renderer/features/qc/qc-admin.js"></script>
-  <script src="./renderer/features/notifications/notification-center.js"></script>
-  <script src="./renderer/features/ops/ops-flows.js"></script>
-  <script src="./renderer/ui/flowbite-wrappers.js"></script>
   <script src="./renderer.js"></script>
-</body>
+  <script>
+    // ══════════════════════════════════════════════════════════════════════
+    //  SPLICE AI — Audio Streaming Dashboard
+    // ══════════════════════════════════════════════════════════════════════
 
+    // ── State ──────────────────────────────────────────────────────────────
+    let selectedSource = 'mic';
+    let selectedEncoding = 'pcm_float32';
+    let isRecording = false;
+    let chunkCount = 0;
+    let startTime = null;
+    let timerInterval = null;
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let removeAudioListener = null;
+    let animFrameId = null;
+    let analyser = null;
+    let audioCtx = null;
+
+    // ── DOM refs ───────────────────────────────────────────────────────────
+    const btnRecord  = document.getElementById('btn-record');
+    const logList    = document.getElementById('log-list');
+    const statChunks = document.getElementById('stat-chunks');
+    const statTime   = document.getElementById('stat-time');
+    const statePill  = document.getElementById('state-pill');
+    const sessionLbl = document.getElementById('session-label');
+    const backendDot = document.getElementById('backend-dot');
+    const backendLbl = document.getElementById('backend-label');
+    const canvas     = document.getElementById('waveform');
+    const ctx2d      = canvas.getContext('2d');
+    const chunkSlider = document.getElementById('chunk-slider');
+    const rateSlider  = document.getElementById('rate-slider');
+
+    // ── Logging ─────────────────────────────────────────────────────────────
+    function log(type, msg) {
+      const now = new Date();
+      const ts = now.toTimeString().slice(0, 8) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.innerHTML = `<span class="log-time">${ts}</span><span class="log-msg">${msg}</span>`;
+      logList.appendChild(entry);
+      logList.scrollTop = logList.scrollHeight;
+    }
+
+    // ── Slider labels ────────────────────────────────────────────────────
+    chunkSlider.addEventListener('input', () => {
+      document.getElementById('chunk-val').textContent = chunkSlider.value + 'ms';
+    });
+    rateSlider.addEventListener('input', () => {
+      const khz = (Number(rateSlider.value) / 1000).toFixed(0);
+      document.getElementById('rate-val').textContent = khz + ' kHz';
+    });
+
+    // ── Source cards ─────────────────────────────────────────────────────
+    document.querySelectorAll('[data-source]').forEach(card => {
+      card.addEventListener('click', () => {
+        if (isRecording) return;
+        document.querySelectorAll('[data-source]').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        selectedSource = card.dataset.source;
+        log('info', `Source set to: ${selectedSource}`);
+      });
+    });
+
+    // ── Encoding cards ────────────────────────────────────────────────────
+    document.querySelectorAll('[data-enc]').forEach(card => {
+      card.addEventListener('click', () => {
+        if (isRecording) return;
+        document.querySelectorAll('[data-enc]').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        selectedEncoding = card.dataset.enc;
+        log('info', `Encoding set to: ${selectedEncoding}`);
+      });
+    });
+
+    // ── Backend status check ──────────────────────────────────────────────
+    async function checkBackend() {
+      if (window.spliceDesktop && typeof window.spliceDesktop.isBackendReady === 'function') {
+        try {
+          const ready = await window.spliceDesktop.isBackendReady();
+          if (ready) {
+            backendDot.className = 'status-dot connected';
+            backendLbl.textContent = 'Backend ready';
+            log('info', '✓ FastAPI backend is ready');
+          } else {
+            backendLbl.textContent = 'Backend not ready';
+            log('warn', '⚠ Backend reported not ready');
+          }
+        } catch (e) {
+          backendDot.className = 'status-dot error';
+          backendLbl.textContent = 'Backend error';
+          log('error', 'Backend check failed: ' + e.message);
+        }
+      } else {
+        backendDot.className = 'status-dot connected';
+        backendLbl.textContent = 'Dev mode';
+        log('info', 'Running in dev mode');
+      }
+    }
+
+    // ── Waveform visualizer ───────────────────────────────────────────────
+    function resizeCanvas() {
+      const wrap = document.getElementById('visualizer-wrap');
+      canvas.width = wrap.clientWidth;
+      canvas.height = wrap.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function drawIdle() {
+      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+      ctx2d.beginPath();
+      ctx2d.strokeStyle = 'rgba(108,99,255,0.25)';
+      ctx2d.lineWidth = 1.5;
+      const y = canvas.height / 2;
+      ctx2d.moveTo(0, y);
+      for (let x = 0; x < canvas.width; x++) {
+        const wave = Math.sin((x / canvas.width) * Math.PI * 6) * 4;
+        ctx2d.lineTo(x, y + wave);
+      }
+      ctx2d.stroke();
+    }
+
+    function drawLive() {
+      if (!analyser) return;
+      const buf = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteTimeDomainData(buf);
+
+      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+      ctx2d.beginPath();
+      ctx2d.strokeStyle = '#6c63ff';
+      ctx2d.lineWidth = 2;
+      const step = canvas.width / buf.length;
+      let x = 0;
+      for (let i = 0; i < buf.length; i++) {
+        const v = buf[i] / 128.0;
+        const y = (v * canvas.height) / 2;
+        i === 0 ? ctx2d.moveTo(x, y) : ctx2d.lineTo(x, y);
+        x += step;
+      }
+      ctx2d.stroke();
+      animFrameId = requestAnimationFrame(drawLive);
+    }
+
+    drawIdle();
+
+    // ── Timer ─────────────────────────────────────────────────────────────
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const s = Math.floor((Date.now() - startTime) / 1000);
+        const mm = String(Math.floor(s / 60)).padStart(2, '0');
+        const ss = String(s % 60).padStart(2, '0');
+        statTime.textContent = `${mm}:${ss}`;
+      }, 500);
+    }
+    function stopTimer() {
+      clearInterval(timerInterval);
+      statTime.textContent = '00:00';
+    }
+
+    // ── setState UI helper ─────────────────────────────────────────────────
+    function setState(state) {
+      statePill.textContent = state;
+      statePill.className = state;
+    }
+
+    // ── Record button ─────────────────────────────────────────────────────
+    btnRecord.addEventListener('click', async () => {
+      if (!isRecording) {
+        await startStream();
+      } else {
+        await stopStream();
+      }
+    });
+
+    // ── Start stream ──────────────────────────────────────────────────────
+    async function startStream() {
+      setState('connecting');
+      log('info', `Starting stream — source: ${selectedSource}, encoding: ${selectedEncoding}`);
+
+      try {
+        // 1. Acquire media stream
+        let stream;
+        if (selectedSource === 'mic') {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        } else if (selectedSource === 'system') {
+          stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: { width: 1, height: 1 } });
+          stream.getVideoTracks().forEach(t => t.stop());
+        } else {
+          const [m, d] = await Promise.all([
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false }),
+            navigator.mediaDevices.getDisplayMedia({ audio: true, video: { width: 1, height: 1 } })
+          ]);
+          d.getVideoTracks().forEach(t => t.stop());
+          audioCtx = new AudioContext({ sampleRate: Number(rateSlider.value) });
+          const dest = audioCtx.createMediaStreamDestination();
+          audioCtx.createMediaStreamSource(m).connect(dest);
+          audioCtx.createMediaStreamSource(d).connect(dest);
+          stream = dest.stream;
+        }
+        mediaStream = stream;
+
+        // 2. Setup analyser for waveform
+        const actx = audioCtx || new AudioContext();
+        audioCtx = actx;
+        analyser = actx.createAnalyser();
+        analyser.fftSize = 512;
+        const src = actx.createMediaStreamSource(stream);
+        src.connect(analyser);
+
+        // 3. Tell backend to open WS (via IPC if available, or log-only)
+        const config = {
+          source: selectedSource,
+          sampleRate: Number(rateSlider.value),
+          chunkMs: Number(chunkSlider.value),
+          encoding: selectedEncoding,
+        };
+
+        if (window.spliceAI && typeof window.spliceAI.startAudioStream === 'function') {
+          const resp = await window.spliceAI.startAudioStream(config);
+          log('info', `IPC → start: ${JSON.stringify(resp?.data || resp)}`);
+          sessionLbl.textContent = `session: ${resp?.data?.sessionId || resp?.sessionId || '—'}`;
+
+          // 4. Listen for ACK events from Main process
+          removeAudioListener = window.spliceAI.onAudioEvent((_, msg) => {
+            if (msg?.data?.chunk_id !== undefined) {
+              chunkCount++;
+              statChunks.textContent = chunkCount;
+              if (chunkCount % 10 === 0) {
+                log('ack', `ACK #${msg.data.chunk_id} — ${msg.data.size_bytes} bytes`);
+              }
+            } else if (msg?.data?.event === 'connection_status') {
+              log('info', `Status → ${msg.data.status}: ${msg.data.message || ''}`);
+              if (msg.data.status === 'active') {
+                backendDot.className = 'status-dot connected';
+                setState('streaming');
+              }
+            }
+          });
+        } else {
+          log('warn', '⚠ spliceAI IPC not available — visualizer only mode');
+          setState('streaming');
+        }
+
+        // 5. MediaRecorder for chunk capture
+        const chunkMs = Number(chunkSlider.value);
+        const mimeType = selectedEncoding === 'webm_opus' && MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus' : '';
+        const recOpts = mimeType ? { mimeType } : {};
+        mediaRecorder = new MediaRecorder(stream, recOpts);
+
+        mediaRecorder.ondataavailable = async (ev) => {
+          if (!ev.data || ev.data.size === 0) return;
+          // Audio chunk available — in Phase 1 we confirm receipt locally
+          // Binary forwarding to Main WS happens in Phase 2
+          if (chunkCount % 20 === 0 && !window.spliceAI) {
+            log('ack', `Local chunk: ${ev.data.size} bytes`);
+          }
+        };
+
+        mediaRecorder.onerror = (ev) => {
+          log('error', `MediaRecorder error: ${ev.error?.message}`);
+          setState('error');
+        };
+
+        mediaRecorder.start(chunkMs);
+
+        // Update UI
+        isRecording = true;
+        btnRecord.textContent = '⏹';
+        btnRecord.classList.add('recording');
+        startTimer();
+        drawLive();
+        setState('streaming');
+        log('info', '🔴 Recording started');
+
+      } catch (err) {
+        setState('error');
+        log('error', `Failed to start: ${err.message}`);
+        console.error(err);
+      }
+    }
+
+    // ── Stop stream ───────────────────────────────────────────────────────
+    async function stopStream() {
+      setState('stopping');
+      log('info', 'Stopping stream…');
+
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        mediaRecorder = null;
+      }
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(t => t.stop());
+        mediaStream = null;
+      }
+      if (analyser) {
+        analyser.disconnect();
+        analyser = null;
+      }
+      if (audioCtx) {
+        await audioCtx.close().catch(() => {});
+        audioCtx = null;
+      }
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+      if (removeAudioListener) {
+        removeAudioListener();
+        removeAudioListener = null;
+      }
+
+      if (window.spliceAI && typeof window.spliceAI.stopAudioStream === 'function') {
+        const resp = await window.spliceAI.stopAudioStream();
+        log('info', `IPC → stop: chunks sent=${resp?.data?.chunksReceived ?? resp?.chunksReceived ?? '—'}`);
+      }
+
+      isRecording = false;
+      chunkCount = 0;
+      statChunks.textContent = '0';
+      sessionLbl.textContent = '';
+      btnRecord.textContent = '🎙';
+      btnRecord.classList.remove('recording');
+      backendDot.className = 'status-dot';
+      stopTimer();
+      drawIdle();
+      setState('idle');
+      log('info', '⏹ Stopped');
+    }
+
+    // ── Clear log ─────────────────────────────────────────────────────────
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      logList.innerHTML = '';
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────────
+    checkBackend();
+    log('info', 'SPLICE AI Audio Dashboard ready');
+  </script>
+
+</body>
 </html>

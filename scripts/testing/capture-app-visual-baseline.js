@@ -20,7 +20,7 @@ function ensureDir(dirPath) {
 
 async function login(page) {
   await page.waitForSelector('#login-email', { timeout: 20000 });
-  await page.fill('#login-email', process.env.VISUAL_BASELINE_EMAIL || 'visual-baseline@fileeaters.local');
+  await page.fill('#login-email', process.env.VISUAL_BASELINE_EMAIL || 'visual-baseline@splice.local');
   await page.fill('#login-password', process.env.VISUAL_BASELINE_PASSWORD || 'SuperSecretPassword123!');
   await page.click('#login-form button[type="submit"]');
   await page.waitForSelector('#view-dashboard', { timeout: 20000 });
@@ -32,8 +32,8 @@ async function capture() {
     args: ['.'],
     env: {
       ...process.env,
-      FILEEATERS_ACTOR_ID: process.env.VISUAL_BASELINE_ACTOR_ID || 'visual-baseline',
-      FILEEATERS_AUTH_ROLES: process.env.VISUAL_BASELINE_ROLES || 'admin,reviewer,creator',
+      SPLICE_ACTOR_ID: process.env.VISUAL_BASELINE_ACTOR_ID || 'visual-baseline',
+      SPLICE_AUTH_ROLES: process.env.VISUAL_BASELINE_ROLES || 'admin,reviewer,creator',
       SPLICE_ENV: 'local',
       SPLICE_ENABLE_HEALTH_SERVER: 'false',
       PLAYWRIGHT_E2E: '1',

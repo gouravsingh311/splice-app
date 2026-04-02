@@ -110,7 +110,7 @@ test("renderer notification center groups unread/read and allows retry for revie
   let retryCalls = 0;
   global.document = document;
   global.window = {
-    fileeaters: {
+    splice: {
       auth: {
         async getSession() {
           return {
@@ -240,7 +240,7 @@ test("renderer notification center hides non-creator operational notifications f
 
   global.document = document;
   global.window = {
-    fileeaters: {
+    splice: {
       auth: {
         async getSession() {
           return {
@@ -324,7 +324,7 @@ test("renderer notification center preserves prior data and shows recovery guida
   let listCalls = 0;
   global.document = document;
   global.window = {
-    fileeaters: {
+    splice: {
       auth: {
         async getSession() {
           return {
@@ -414,7 +414,7 @@ test("renderer notification center distinguishes no-data state with next-step gu
 
   global.document = document;
   global.window = {
-    fileeaters: {
+    splice: {
       auth: {
         async getSession() {
           return {

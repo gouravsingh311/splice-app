@@ -6,7 +6,7 @@ const path = require("node:path");
 test("preload bridge exposes typed API and does not expose privileged primitives", () => {
   const preloadSource = fs.readFileSync(path.join(__dirname, "../electron/preload.js"), "utf8");
 
-  assert.ok(preloadSource.includes("contextBridge.exposeInMainWorld(\"fileeaters\""));
+  assert.ok(preloadSource.includes("contextBridge.exposeInMainWorld(\"splice\""));
   assert.equal(preloadSource.includes("require(\"./preloadApi\")"), false);
   assert.equal(preloadSource.includes("contextBridge.exposeInMainWorld(\"ipcRenderer\""), false);
   assert.equal(preloadSource.includes("contextBridge.exposeInMainWorld(\"electron\""), false);

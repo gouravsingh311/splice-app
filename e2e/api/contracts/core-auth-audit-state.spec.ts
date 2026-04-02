@@ -95,9 +95,9 @@ test.describe("Core auth/audit/state API contract scenarios", () => {
         actor_id: actorId,
         action: "desktop.ipc.denied.v1",
         entity_type: "desktop",
-        entity_id: "fileeaters.audit.security-events.list.v1",
+        entity_id: "splice.audit.security-events.list.v1",
         metadata: {
-          channel: "fileeaters.audit.security-events.list.v1",
+          channel: "splice.audit.security-events.list.v1",
           reason: "PERMISSION_FORBIDDEN",
         },
       },

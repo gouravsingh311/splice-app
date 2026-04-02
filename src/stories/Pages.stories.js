@@ -193,7 +193,7 @@ function buildSubmissionsStoryBridge(state) {
 }
 
 function mountSubmissionsStory(root, { state }) {
-  const existingBridge = globalThis.electronAPI || globalThis.fileeaters || null;
+  const existingBridge = globalThis.electronAPI || globalThis.splice || null;
   globalThis.electronAPI = buildSubmissionsStoryBridge(state);
 
   let attempts = 0;
@@ -216,7 +216,7 @@ function mountSubmissionsStory(root, { state }) {
       }
       if (state.triggerNeedsActionShortcut) {
         setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('fileeaters:submissions-shortcut', { detail: { shortcut: 'needs-action' } }));
+          window.dispatchEvent(new CustomEvent('splice:submissions-shortcut', { detail: { shortcut: 'needs-action' } }));
         }, 60);
       }
     }

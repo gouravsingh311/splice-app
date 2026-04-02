@@ -12,8 +12,8 @@ const QC_FIXTURE_LABEL_NAME = 'Test Label';
 const REAL_SMOKE_DIAGNOSTICS_DIR = path.join(process.cwd(), 'test-results', 'real-smoke-diagnostics');
 const CREATOR_SMOKE_PASSWORD = 'CreatorPass123!';
 const REVIEWER_SMOKE_PASSWORD = 'ReviewerPass123!';
-const CREATOR_SMOKE_EMAIL = 'creator@fileeaters.local';
-const REVIEWER_SMOKE_EMAIL = 'reviewer@fileeaters.local';
+const CREATOR_SMOKE_EMAIL = 'creator@splice.local';
+const REVIEWER_SMOKE_EMAIL = 'reviewer@splice.local';
 const PROVISIONED_REAL_AUTH_ACCOUNTS = new Set<string>();
 
 type RuntimeDiagnostics = {
@@ -169,7 +169,7 @@ async function ensureAuthenticatedSession(
   authStub: boolean
 ): Promise<void> {
   await waitForRendererBootstrapReady(app, page, diagnostics, `bootstrap-${actorId}`);
-  const resolvedStubMode = await app.evaluate(() => String(process.env.FILEEATERS_AUTH_STUB || '')).catch(() => '');
+  const resolvedStubMode = await app.evaluate(() => String(process.env.SPLICE_AUTH_STUB || '')).catch(() => '');
   expect(resolvedStubMode).toBe(authStub ? 'true' : 'false');
   if (!authStub) {
     const apiBaseUrl = await resolveApiBaseUrl(app);

@@ -18,7 +18,7 @@ const helpers = workspacePage.__test;
 const FULL_DRAFT = {
   submissionId: "sub-t06",
   packName: "Resonance Pack",
-  labelName: "FileEaters",
+  labelName: "Splice",
   releaseMonth: "2026-09",
   notes: "test",
   tags: ["electronic"],

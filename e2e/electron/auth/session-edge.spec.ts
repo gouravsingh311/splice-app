@@ -34,7 +34,7 @@ test.describe("AUTH session edge scenarios", () => {
   });
 
   test("[AUTH-018] logout-all revokes the backend session family and leaves refresh unusable", async ({ request }) => {
-    const email = "creator@fileeaters.local";
+    const email = "creator@splice.local";
     const password = "CreatorPass123!";
     const { app, page, apiUrl } = await launchDesktop({ actorId: email, actorRoles: "creator" });
 

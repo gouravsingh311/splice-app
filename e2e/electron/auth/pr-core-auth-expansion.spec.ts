@@ -21,7 +21,7 @@ type AuthSessionResponse = {
 async function readRendererSession(page: Page, includePermissions = false): Promise<AuthSessionResponse> {
   return page.evaluate(
     async ({ withPermissions }) => {
-      return (window as any).fileeaters.auth.getSession({ includePermissions: withPermissions });
+      return (window as any).splice.auth.getSession({ includePermissions: withPermissions });
     },
     { withPermissions: includePermissions },
   );

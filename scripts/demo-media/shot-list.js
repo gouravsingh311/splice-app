@@ -13,7 +13,7 @@ const OUTPUT_DIRS = Object.freeze({
 });
 
 const DEFAULT_LOGIN = Object.freeze({
-  email: 'demo-user@fileeaters.local',
+  email: 'demo-user@splice.local',
   password: 'Password123456!',
 });
 

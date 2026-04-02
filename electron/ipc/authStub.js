@@ -23,8 +23,8 @@ function parseRoles(rawRoles) {
 
 function resolveAuthContext() {
   return {
-    actorId: process.env.FILEEATERS_ACTOR_ID || "local-dev-actor",
-    roles: parseRoles(process.env.FILEEATERS_AUTH_ROLES),
+    actorId: process.env.SPLICE_ACTOR_ID || "local-dev-actor",
+    roles: parseRoles(process.env.SPLICE_AUTH_ROLES),
     sessionIssuedAt: new Date().toISOString(),
   };
 }

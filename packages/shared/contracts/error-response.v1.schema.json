@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://fileeaters.local/schemas/error-response.v1.schema.json",
+  "$id": "https://splice.local/schemas/error-response.v1.schema.json",
   "title": "ErrorResponseV1",
   "type": "object",
   "additionalProperties": false,

@@ -1,5 +1,5 @@
-appId: com.fileeaters.splice
-productName: FileEaters Splice
+appId: com.splice.splice
+productName: Splice Splice
 directories:
   output: dist-app
 files:

@@ -149,6 +149,7 @@ function readRuntimeConfig(env = process.env, packageMetadata = {}) {
     enableHealthServer: parseBoolean(env.SPLICE_ENABLE_HEALTH_SERVER, true),
     logLevel: parseLogLevel(env.SPLICE_LOG_LEVEL),
     apiBaseUrl: parseApiBaseUrl(env.SPLICE_API_BASE_URL),
+    enableScreenShield: parseBoolean(env.SPLICE_SCREEN_SHIELD_ENABLED, true),
   };
 
   return Object.freeze(runtimeConfig);

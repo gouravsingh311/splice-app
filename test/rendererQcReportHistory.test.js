@@ -183,7 +183,7 @@ test("renderer QC report supports switching submissions and historical runs", as
   global.document = document;
   global.window = {
     authUiState: {},
-    fileeaters: {
+    splice: {
       system: {
         versions: { electron: "40.6.0", chrome: "144.0.0.0" },
         runtime: { environment: "local", healthPort: 4815 },
@@ -285,7 +285,7 @@ test("renderer QC report differentiates empty history from unreachable backend",
   global.document = document;
   global.window = {
     authUiState: {},
-    fileeaters: {
+    splice: {
       auth: {
         async getSession() {
           return {

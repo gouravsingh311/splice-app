@@ -56,13 +56,13 @@ test.describe("Resilience degraded-recovery scenarios", () => {
           },
         });
         const nextBridge = {
-          ...(window as any).fileeaters,
+          ...(window as any).splice,
           review: {
-            ...(window as any).fileeaters.review,
+            ...(window as any).splice.review,
             listQueue: failingListQueue,
           },
         };
-        (window as any).fileeaters = nextBridge;
+        (window as any).splice = nextBridge;
         (window as any).electronAPI = nextBridge;
         if ((window as any).reviewQueuePage?.wire) {
           (window as any).reviewQueuePage.wire({ api: nextBridge });

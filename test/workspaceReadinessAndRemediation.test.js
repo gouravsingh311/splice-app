@@ -295,7 +295,7 @@ test("toCreatorSafeSurfaceMessage redacts policy diagnostics from creator flow",
   );
   const submitMessage = helpers.toCreatorSafeSurfaceMessage(
     "submit",
-    "version conflict from fileeaters.admin.qc-policy.update.v1",
+    "version conflict from splice.admin.qc-policy.update.v1",
   );
 
   assert.equal(

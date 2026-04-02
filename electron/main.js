@@ -8,11 +8,7 @@ const { registerPermissionGuards } = require("./infra/permissionGuards");
 const { createStructuredLogger } = require("./infra/structuredLogger");
 const { buildMainWindowOptions, createMainWindow } = require("./window/createMainWindow");
 const { createIpcRouter } = require("./ipc/router");
-const { createAuditApiClient } = require("./ipc/auditLog");
-const { createAuthBackendClient } = require("./ipc/authBackendClient");
-const { createNotificationsBackendClient } = require("./ipc/notificationsBackendClient");
-const { createOperationsBackendClient } = require("./ipc/operationsBackendClient");
-const { createQcBackendClient } = require("./ipc/qcBackendClient");
+
 const { assertSecureWebPreferences, attachNavigationGuards } = require("./security/windowSecurity");
 const { startPythonBackend, stopPythonBackend } = require("./infra/pythonProcess");
 const { createTray } = require("./infra/tray");
@@ -45,36 +41,7 @@ const runtimeSecurityState = {
   navigationGuard: false,
 };
 
-async function exportQcReport(payload) {
-  const defaultFileName = `qc-findings-${payload.runId}.json`;
-  const exportDocument = {
-    submissionId: payload.submissionId,
-    runId: payload.runId,
-    generatedAt: payload.generatedAt,
-    ruleSetVersion: payload.ruleSetVersion,
-    policyVersion: payload.policyVersion,
-    status: payload.status,
-    startedAt: payload.startedAt,
-    completedAt: payload.completedAt,
-    findings: payload.findings,
-  };
-  const saveResult = await dialog.showSaveDialog({
-    title: "Export QC Findings",
-    defaultPath: path.join(app.getPath("documents"), defaultFileName),
-    filters: [{ name: "JSON", extensions: ["json"] }],
-  });
 
-  if (saveResult.canceled || !saveResult.filePath) {
-    return { canceled: true, path: null };
-  }
-
-  await fs.writeFile(
-    saveResult.filePath,
-    `${JSON.stringify(exportDocument, null, 2)}\n`,
-    "utf8"
-  );
-  return { canceled: false, path: saveResult.filePath };
-}
 
 function verifyDesktopSecurityState() {
   const checks = assertSecureWebPreferences(runtimeSecurityState.webPreferences);
@@ -157,35 +124,9 @@ app
     }
 
     const ipcRouter = createIpcRouter({
+      enableScreenShield: runtimeConfig.enableScreenShield,
       internalSecret: process.env.SPLICE_INTERNAL_SECRET,
-      authBackendClient: createAuthBackendClient({
-        baseUrl: runtimeConfig.apiBaseUrl,
-        internalSecret: process.env.SPLICE_INTERNAL_SECRET,
-        logger,
-      }),
-      qcBackendClient: createQcBackendClient({
-        baseUrl: runtimeConfig.apiBaseUrl,
-        internalSecret: process.env.SPLICE_INTERNAL_SECRET,
-        logger,
-      }),
-      notificationsBackendClient: createNotificationsBackendClient({
-        baseUrl: runtimeConfig.apiBaseUrl,
-        internalSecret: process.env.SPLICE_INTERNAL_SECRET,
-        logger,
-      }),
-      operationsBackendClient: createOperationsBackendClient({
-        baseUrl: runtimeConfig.apiBaseUrl,
-        internalSecret: process.env.SPLICE_INTERNAL_SECRET,
-        logger,
-      }),
-      auditApiClient: createAuditApiClient({
-        baseUrl: runtimeConfig.apiBaseUrl,
-        internalToken: process.env.SPLICE_INTERNAL_API_TOKEN,
-        internalSecret: process.env.SPLICE_INTERNAL_SECRET,
-        logger,
-      }),
       verifySecurityConfig: verifyDesktopSecurityState,
-      qcReportExporter: exportQcReport,
       expectedRendererPath,
       isTrustedWebContentsId: (webContentsId) => trustedRendererWebContentsIds.has(webContentsId),
       logger,
@@ -197,15 +138,13 @@ app
     // Initialize system tray for visibility recovery
     const appIconPath = path.join(__dirname, "../src/assets/figma/smiley_face_open_mouth.png");
     createTray({ mainWindow, iconPath: appIconPath, logger });
-    
-    // Enable Screen Shield and skip taskbar by default on startup
+    // Set Screen Shield and taskbar visibility based on environment configuration
     if (process.platform === "win32" || process.platform === "darwin") {
-      mainWindow.setContentProtection(true);
-      mainWindow.setSkipTaskbar(true);
-      logger.info("Screen Shield (Anti-Capture) and taskbar-skip enabled on startup");
+      mainWindow.setContentProtection(runtimeConfig.enableScreenShield);
+      mainWindow.setSkipTaskbar(runtimeConfig.enableScreenShield);
+      logger.info(`Screen Shield (Anti-Capture) and taskbar-skip set to ${runtimeConfig.enableScreenShield} on startup`);
     }
-    
-    isAppReady = true;
+        isAppReady = true;
 
     try {
       healthServerHandle = await startHealthServer({

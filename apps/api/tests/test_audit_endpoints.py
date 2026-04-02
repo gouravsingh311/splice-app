@@ -14,7 +14,7 @@ def append_sample_event(
     client: TestClient,
     *,
     action: str = "desktop.ipc.denied.v1",
-    entity_id: str = "fileeaters.audit.security-events.list.v1",
+    entity_id: str = "splice.audit.security-events.list.v1",
     actor_id: str = "reviewer-1",
     idempotency_key: str | None = None,
 ) -> dict:

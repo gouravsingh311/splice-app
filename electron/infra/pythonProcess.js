@@ -33,21 +33,23 @@ function findFreePort() {
 }
 
 function getDevPythonExecutable(repoRoot) {
-  if (process.env.SPLICE_PYTHON_EXECUTABLE && String(process.env.SPLICE_PYTHON_EXECUTABLE).trim()) {
-    return String(process.env.SPLICE_PYTHON_EXECUTABLE).trim();
-  }
   if (process.platform === "win32") {
     const winVenvPath = path.join(repoRoot, ".venv", "Scripts", "python.exe");
     if (fs.existsSync(winVenvPath)) {
       return winVenvPath;
     }
-    return "py";
+  } else {
+    const unixVenvPath = path.join(repoRoot, ".venv", "bin", "python");
+    if (fs.existsSync(unixVenvPath)) {
+      return unixVenvPath;
+    }
   }
-  const unixVenvPath = path.join(repoRoot, ".venv", "bin", "python");
-  if (fs.existsSync(unixVenvPath)) {
-    return unixVenvPath;
+
+  if (process.env.SPLICE_PYTHON_EXECUTABLE && String(process.env.SPLICE_PYTHON_EXECUTABLE).trim()) {
+    return String(process.env.SPLICE_PYTHON_EXECUTABLE).trim();
   }
-  return "python3";
+
+  return process.platform === "win32" ? "py" : "python3";
 }
 
 function getPackagedExecutablePath() {

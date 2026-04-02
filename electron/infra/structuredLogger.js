@@ -23,7 +23,7 @@ function isIgnorableLoggingError(error) {
 }
 
 function installStreamErrorGuard(stream) {
-  if (!stream || typeof stream.on !== "function" || stream.__fileeatersLoggingGuardInstalled) {
+  if (!stream || typeof stream.on !== "function" || stream.__spliceLoggingGuardInstalled) {
     return;
   }
 
@@ -31,7 +31,7 @@ function installStreamErrorGuard(stream) {
     // Logging is best-effort. Stream write failures must never crash the main process.
   });
 
-  Object.defineProperty(stream, "__fileeatersLoggingGuardInstalled", {
+  Object.defineProperty(stream, "__spliceLoggingGuardInstalled", {
     value: true,
     configurable: true,
   });

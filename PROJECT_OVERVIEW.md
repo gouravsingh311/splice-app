@@ -1,65 +1,70 @@
-# Splice Desktop — Project Overview
+# SPLICE — Project Overview
 
-A professional-grade desktop application built with a modern, security-focused architecture. Splice Desktop combines a React-based frontend with a powerful FastAPI backend, all wrapped in a hardened Electron shell.
+A professional-grade desktop application shell built with a security-focused architecture. **SPLICE** (formerly *fileestares*) provides a clean, hardened foundation combining an Electron frontend with a FastAPI backend.
+
+
 
 ## 🚀 Core Technology Stack
 
 | Layer | Technologies |
 | :--- | :--- |
-| **Desktop Shell** | **Electron** (v40+) |
-| **Frontend UI** | **React** + **Tailwind CSS v4** + **Flowbite** |
-| **Backend API** | **FastAPI** (Python 3.12+) powered by **Uvicorn** |
-| **Persistence** | **SQLite** (via `better-sqlite3` and `SQLAlchemy`) |
-| **Search & AI** | **OpenAI**, **Milvus** (Vector DB), **Typesense** (Search) |
-| **Validation** | **Zod** (Frontend) & **Pydantic v2** (Backend) |
-| **Testing** | **Playwright** (E2E), **Storybook** (Component Dev), **Node Test Runner** |
+| **Desktop Shell** | **Electron** |
+| **Frontend UI** | **Vanilla HTML** + **Tailwind CSS v4** |
+| **Backend API** | **FastAPI** (Python 3.12+) |
+| **Persistence** | **SQLite** (via SQLAlchemy & better-sqlite3) |
+| **Security** | **CSC**, **Context Isolation**, **Sandbox Mode** |
 
 ---
 
 ## 🏗️ Architecture & Security Model
 
-The application is designed with **Privacy-First** principles and a clear separation of concerns (Electron Main, Preload, and Renderer).
+The application follows strict **Privacy-First** principles and maintains a clear boundary between the frontend renderer and the backend services.
 
-### 1. Hardened IPC & Sandbox
-- **Context Isolation**: Enabled to prevent direct Node.js access from the renderer.
-- **Secure Preload Bridge**: Uses `contextBridge` to expose only necessary APIs to the UI.
-- **Window Security**: Strict `webPreferences` including `sandbox: true` and navigation guards.
+### 1. Hardened Electron Shell
+*   **Context Isolation & Sandboxing**: Enabled by default to prevent direct Node.js access from the UI.
+*   **Secure Preload Bridge**: A restricted set of APIs is exposed to the renderer via `contextBridge` in `electron/preload.js`.
+*   **Content Security Policy (CSP)**: Strict headers are implemented in `src/index.html` to prevent XSS and unauthorized data exfiltration.
 
 ### 2. Backend Communication
-- **Shared Secret Auth**: Electron and FastAPI communicate over localhost using a shared secret (`X-Internal-Secret`). This ensures only the local Electron app can access the backend services.
-- **Process Management**: Electron manages the lifecycle of the Python backend (starting it on boot and stopping it on exit).
-
-### 3. Privacy-First Features
-- **Presenter Mode**: A built-in feature to safely redact/mask sensitive information (API keys, PII) during screen sharing or demos.
-- **Audit Logging**: Comprehensive system and user event logging for compliance and monitoring.
+*   **Shared Secret Auth**: All communication between Electron and the FastAPI backend is secured using an internal shared secret (`X-Internal-Secret`).
+*   **Lifecycle Management**: The Electron main process automatically manages the Python backend process (starting it on boot and terminating it on exit).
+*   **Health Monitoring**: A dedicated health server tracks the readiness of both the Electron app and the Python backend.
 
 ---
 
 ## 📂 Project Structure
 
-- **`electron/`**: Electron "Main Process" logic, IPC routing, and security guards.
-- **`apps/api/`**: FastAPI "Backend" source code.
-    - `app/features/`: Domain-driven modules (Auth, QC, Submissions, Jobs, Audit).
-    - `app/core/`: Shared infrastructure (DB sessions, Logging, Observability).
-- **`src/`**: "Renderer Process" (Frontend).
-    - `renderer.js` & `index.html`: Main entry points.
-    - `styles/`: Tailwind CSS and Flowbite configurations.
-- **`e2e/`**: Playwright test suites for both UI logic and API contract validation.
-- **`scripts/`**: Automation scripts for bootstrapping, build pipelines, and parity checks.
+*   **`electron/`**: Main process logic.
+    *   `main.js`: Entry point, manages window and backend lifecycle.
+    *   `ipc/`: IPC routing and request handling.
+    *   `security/`: Window security guards and CSP enforcement.
+*   **`apps/api/`**: FastAPI "Backend" (Python).
+    *   `app/main.py`: API entry point with health and version endpoints.
+    *   `app/core/`: Database initialization and logging utilities.
+*   **`src/`**: "Renderer Process" (Frontend).
+    *   `index.html`: Main UI structure.
+    *   `renderer.js`: Frontend logic.
+    *   `styles/`: Tailwind CSS configuration and styles.
+*   **`data/`**: Local data persistence (SQLite datasets).
+*   **`scripts/`**: Automation for bootstrapping and environment setup.
 
 ---
 
 ## 👨‍💻 Developer Workflow
 
 ### Quick Start
-1.  **Bootstrap**: `npm run bootstrap` (Sets up environments).
-2.  **Dev Mode**: `npm start` (Starts Tailwind watcher and the Electron app).
-3.  **Test**: `npm test` or `npm run test:e2e:core` (Executes the test suites).
+1.  **Environment Setup**: Ensure Python 3.12+ and Node.js are installed.
+2.  **Bootstrap**: Use `npm run bootstrap` to set up virtual environments and dependencies.
+3.  **Start App**: Run `npm start` to launch the application.
 
-### Core Scripts
-- `npm run build:css`: Compiles Tailwind CSS.
-- `npm run bootstrap:backend`: Initializes the Python backend environment.
-- `npm run dist`: Packages the entire app for production using `electron-builder`.
+### Core Commands
+*   `npm start`: Runs the Tailwind watcher and launches the Electron app.
+*   `npm run build:css`: Compiles Tailwind CSS for the frontend.
+*   `npm run test:e2e:core`: Runs Playwright E2E tests for core connectivity.
 
-### Observability
-The app includes integrated **Sentry** (for error tracking) and a custom **Health Server** to monitor readiness and liveness of all internal components.
+---
+
+## 🛡️ Privacy & Security Features
+*   **Screen Shield**: (Conditional) Anti-capture and taskbar-skip functionality can be enabled via configuration.
+*   **Permission Guards**: Strict control over web permissions (camera, microphone, etc.).
+*   **Audit Logging**: JSON-formatted logs for both Electron and FastAPI processes.

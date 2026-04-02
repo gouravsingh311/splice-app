@@ -24,7 +24,7 @@ test("createAuditApiClient sends append payload to backend contract", async () =
 
   await client.appendSecurityEvent({
     id: "ipc-sec-000001",
-    channel: "fileeaters.audit.security-events.list.v1",
+    channel: "splice.audit.security-events.list.v1",
     actorId: "reviewer-1",
     outcome: "denied",
     reason: "ROLE_FORBIDDEN",
@@ -37,7 +37,7 @@ test("createAuditApiClient sends append payload to backend contract", async () =
   assert.equal(payload.schema_version, 1);
   assert.equal(payload.action, "desktop.ipc.denied.v1");
   assert.equal(payload.entity_type, "desktop");
-  assert.equal(payload.entity_id, "fileeaters.audit.security-events.list.v1");
+  assert.equal(payload.entity_id, "splice.audit.security-events.list.v1");
   assert.equal(requests[0].options.headers["X-Internal-Secret"], "test-internal-secret");
 });
 
@@ -54,7 +54,7 @@ test("createSecurityAuditLog falls back to local events when remote read is unav
   });
 
   auditLog.append({
-    channel: "fileeaters.auth.session.get.v1",
+    channel: "splice.auth.session.get.v1",
     actorId: "creator-1",
     outcome: "allowed",
     reason: "AUTHORIZED",
@@ -62,7 +62,7 @@ test("createSecurityAuditLog falls back to local events when remote read is unav
 
   const events = await auditLog.listForChannel({ limit: 10 });
   assert.equal(events.length, 1);
-  assert.equal(events[0].channel, "fileeaters.auth.session.get.v1");
+  assert.equal(events[0].channel, "splice.auth.session.get.v1");
   assert.equal(events[0].outcome, "allowed");
 });
 
@@ -81,7 +81,7 @@ test("createAuditApiClient normalizes backend microsecond timestamps for IPC con
                 id: "7cf6f095-b1eb-4a7f-abf4-f1ce6f6eddbe",
                 actor_id: "reviewer-1",
                 action: "desktop.ipc.allowed.v1",
-                entity_id: "fileeaters.desktop.security.verify-config.v1",
+                entity_id: "splice.desktop.security.verify-config.v1",
                 metadata: { reason: "AUTHORIZED" },
                 created_at: "2026-02-25T17:01:47.631790Z",
               },

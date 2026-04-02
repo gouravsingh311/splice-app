@@ -8,28 +8,28 @@ const preloadPath = path.join(__dirname, "..", "electron", "preload.js");
 const preloadSource = fs.readFileSync(preloadPath, "utf8");
 
 const IPC_CHANNELS = Object.freeze({
-  AUTH_GET_SESSION: "fileeaters.auth.session.get.v1",
-  AUTH_LOGIN: "fileeaters.auth.login.v1",
-  AUTH_REGISTER: "fileeaters.auth.register.v1",
-  AUTH_OTP_SEND: "fileeaters.auth.otp.send.v1",
-  AUTH_OTP_VERIFY: "fileeaters.auth.otp.verify.v1",
-  AUTH_FORGOT_PASSWORD: "fileeaters.auth.forgot-password.v1",
-  AUTH_RESET_PASSWORD: "fileeaters.auth.reset-password.v1",
-  QC_EVALUATE_PACK: "fileeaters.qc.evaluate-pack.v1",
-  QC_LIST_RULES: "fileeaters.qc.rules.list.v1",
-  QC_RESULTS_GET: "fileeaters.qc.results.get.v1",
-  QC_REPORT_EXPORT: "fileeaters.qc.report.export.v1",
-  NOTIFICATIONS_LIST: "fileeaters.notifications.list.v1",
-  NOTIFICATIONS_MARK_READ: "fileeaters.notifications.mark-read.v1",
-  NOTIFICATIONS_MARK_ALL_READ: "fileeaters.notifications.mark-all-read.v1",
-  NOTIFICATIONS_RETRY: "fileeaters.notifications.retry.v1",
-  ADMIN_QC_POLICY_GET_ACTIVE: "fileeaters.admin.qc.policy.get.v1",
-  ADMIN_QC_POLICY_UPDATE_ACTIVE: "fileeaters.admin.qc.policy.update.v1",
-  ADMIN_CONFIGS_ROLLBACK: "fileeaters.admin.configs.rollback.v1",
-  OBSERVABILITY_METRICS_GET: "fileeaters.observability.metrics.get.v1",
-  OBSERVABILITY_INCIDENTS_ANNOTATE: "fileeaters.observability.incidents.annotate.v1",
-  DESKTOP_VERIFY_SECURITY: "fileeaters.desktop.security.verify-config.v1",
-  AUDIT_LIST_SECURITY_EVENTS: "fileeaters.audit.security-events.list.v1",
+  AUTH_GET_SESSION: "splice.auth.session.get.v1",
+  AUTH_LOGIN: "splice.auth.login.v1",
+  AUTH_REGISTER: "splice.auth.register.v1",
+  AUTH_OTP_SEND: "splice.auth.otp.send.v1",
+  AUTH_OTP_VERIFY: "splice.auth.otp.verify.v1",
+  AUTH_FORGOT_PASSWORD: "splice.auth.forgot-password.v1",
+  AUTH_RESET_PASSWORD: "splice.auth.reset-password.v1",
+  QC_EVALUATE_PACK: "splice.qc.evaluate-pack.v1",
+  QC_LIST_RULES: "splice.qc.rules.list.v1",
+  QC_RESULTS_GET: "splice.qc.results.get.v1",
+  QC_REPORT_EXPORT: "splice.qc.report.export.v1",
+  NOTIFICATIONS_LIST: "splice.notifications.list.v1",
+  NOTIFICATIONS_MARK_READ: "splice.notifications.mark-read.v1",
+  NOTIFICATIONS_MARK_ALL_READ: "splice.notifications.mark-all-read.v1",
+  NOTIFICATIONS_RETRY: "splice.notifications.retry.v1",
+  ADMIN_QC_POLICY_GET_ACTIVE: "splice.admin.qc.policy.get.v1",
+  ADMIN_QC_POLICY_UPDATE_ACTIVE: "splice.admin.qc.policy.update.v1",
+  ADMIN_CONFIGS_ROLLBACK: "splice.admin.configs.rollback.v1",
+  OBSERVABILITY_METRICS_GET: "splice.observability.metrics.get.v1",
+  OBSERVABILITY_INCIDENTS_ANNOTATE: "splice.observability.incidents.annotate.v1",
+  DESKTOP_VERIFY_SECURITY: "splice.desktop.security.verify-config.v1",
+  AUDIT_LIST_SECURITY_EVENTS: "splice.audit.security-events.list.v1",
 });
 
 function defaultIpcResponse(channel, payload = {}) {
@@ -429,19 +429,19 @@ function runPreload(options = {}) {
 test("preload exposes only expected bridges and keeps them frozen", () => {
   const { exposures } = runPreload();
 
-  assert.deepEqual(Object.keys(exposures).sort(), ["fileeaters", "spliceApp"]);
-  assert.equal(Object.isFrozen(exposures.fileeaters), true);
+  assert.deepEqual(Object.keys(exposures).sort(), ["splice", "spliceApp"]);
+  assert.equal(Object.isFrozen(exposures.splice), true);
   assert.equal(Object.isFrozen(exposures.spliceApp), true);
-  assert.equal(Object.isFrozen(exposures.fileeaters.system), true);
+  assert.equal(Object.isFrozen(exposures.splice.system), true);
   assert.equal(Object.isFrozen(exposures.spliceApp.runtime), true);
 });
 
 test("preload exposes admin rollback bridge through the desktop surface", async () => {
   const { exposures, calls } = runPreload();
 
-  assert.equal(typeof exposures.fileeaters.admin.configs.rollback, "function");
+  assert.equal(typeof exposures.splice.admin.configs.rollback, "function");
 
-  const response = await exposures.fileeaters.admin.configs.rollback({
+  const response = await exposures.splice.admin.configs.rollback({
     id: "cfg-1",
     actorId: "admin-1",
     actorRole: "admin",
@@ -468,8 +468,8 @@ test("preload runtime parser enforces environment and health port allowlist", ()
     },
   }).exposures;
 
-  assert.equal(valid.fileeaters.system.runtime.environment, "prod");
-  assert.equal(valid.fileeaters.system.runtime.healthPort, 4900);
+  assert.equal(valid.splice.system.runtime.environment, "prod");
+  assert.equal(valid.splice.system.runtime.healthPort, 4900);
   assert.equal(valid.spliceApp.runtime.environment, "prod");
   assert.equal(valid.spliceApp.runtime.healthPort, 4900);
 
@@ -480,19 +480,19 @@ test("preload runtime parser enforces environment and health port allowlist", ()
     },
   }).exposures;
 
-  assert.equal(invalid.fileeaters.system.runtime.environment, "local");
-  assert.equal(invalid.fileeaters.system.runtime.healthPort, 4815);
+  assert.equal(invalid.splice.system.runtime.environment, "local");
+  assert.equal(invalid.splice.system.runtime.healthPort, 4815);
 });
 
 test("preload rejects invalid request payload before ipc invoke", async () => {
   const harness = runPreload();
 
   await assert.rejects(
-    harness.exposures.fileeaters.auth.getSession({ includePermissions: "true" }),
+    harness.exposures.splice.auth.getSession({ includePermissions: "true" }),
     /Preload request validation failed/
   );
   await assert.rejects(
-    harness.exposures.fileeaters.auth.register({
+    harness.exposures.splice.auth.register({
       email: "creator@example.com",
       password: "short",
       otpVerificationToken: "otp",
@@ -500,7 +500,7 @@ test("preload rejects invalid request payload before ipc invoke", async () => {
     /Preload request validation failed/
   );
   await assert.rejects(
-    harness.exposures.fileeaters.qc.evaluatePack({
+    harness.exposures.splice.qc.evaluatePack({
       requestId: "qc-1",
       submissionId: "sub-1",
       actorId: "creator-1",
@@ -515,7 +515,7 @@ test("preload rejects invalid request payload before ipc invoke", async () => {
     /Preload request validation failed/
   );
   await assert.rejects(
-    harness.exposures.fileeaters.observability.annotateIncident({
+    harness.exposures.splice.observability.annotateIncident({
       source: "desktop-operations-ui",
       severity: "critical",
       note: "retry exhausted",
@@ -549,7 +549,7 @@ test("preload validates malformed ipc success responses deterministically", asyn
   });
 
   await assert.rejects(
-    harness.exposures.fileeaters.desktop.verifySecurityConfig(),
+    harness.exposures.splice.desktop.verifySecurityConfig(),
     /Preload response validation failed/
   );
 });
@@ -558,7 +558,7 @@ test("preload rejects malformed wave3 operations request payloads before ipc inv
   const harness = runPreload();
 
   await assert.rejects(
-    harness.exposures.fileeaters.jobs.enqueue({
+    harness.exposures.splice.jobs.enqueue({
       requestId: "",
       jobType: "release.trigger",
       idempotencyKey: "release.trigger:sub-1",
@@ -567,7 +567,7 @@ test("preload rejects malformed wave3 operations request payloads before ipc inv
     /Preload request validation failed/
   );
   await assert.rejects(
-    harness.exposures.fileeaters.scheduling.resolve({
+    harness.exposures.splice.scheduling.resolve({
       requestId: "resolve-1",
       submissionId: "sub-1",
       schedulingEvent: {
@@ -585,7 +585,7 @@ test("preload rejects malformed wave3 operations request payloads before ipc inv
     /Preload request validation failed/
   );
   await assert.rejects(
-    harness.exposures.fileeaters.observability.annotateIncident({
+    harness.exposures.splice.observability.annotateIncident({
       source: "desktop-operations-ui",
       severity: "critical",
       note: "retry exhausted",
@@ -601,7 +601,7 @@ test("preload rejects malformed wave3 operations request payloads before ipc inv
 test("preload accepts deterministic forbidden envelopes from operations channels", async () => {
   const harness = runPreload({
     invoke: async (channel) => {
-      if (channel === "fileeaters.jobs.replay.v1") {
+      if (channel === "splice.jobs.replay.v1") {
         return {
           ok: false,
           error: {
@@ -616,7 +616,7 @@ test("preload accepts deterministic forbidden envelopes from operations channels
     },
   });
 
-  const response = await harness.exposures.fileeaters.jobs.replay({
+  const response = await harness.exposures.splice.jobs.replay({
     id: "job-1",
     requestId: "replay-1",
     actorId: "reviewer-1",
@@ -626,13 +626,13 @@ test("preload accepts deterministic forbidden envelopes from operations channels
 
   assert.equal(response.ok, false);
   assert.equal(response.error.code, "AUTH_FORBIDDEN");
-  assert.equal(response.error.channel, "fileeaters.jobs.replay.v1");
+  assert.equal(response.error.channel, "splice.jobs.replay.v1");
 });
 
 test("preload rejects malformed ipc error envelopes deterministically", async () => {
   const harness = runPreload({
     invoke: async (channel) => {
-      if (channel === "fileeaters.scheduling.trigger-release.v1") {
+      if (channel === "splice.scheduling.trigger-release.v1") {
         return {
           ok: false,
           error: {
@@ -648,7 +648,7 @@ test("preload rejects malformed ipc error envelopes deterministically", async ()
   });
 
   await assert.rejects(
-    harness.exposures.fileeaters.scheduling.triggerRelease({
+    harness.exposures.splice.scheduling.triggerRelease({
       requestId: "trigger-1",
       submissionId: "sub-1",
       actorId: "reviewer-1",
@@ -663,34 +663,34 @@ test("preload rejects malformed ipc error envelopes deterministically", async ()
 test("preload uses only namespaced v1 channels when invoking ipc", async () => {
   const harness = runPreload();
 
-  await harness.exposures.fileeaters.auth.getSession({ includePermissions: false });
-  await harness.exposures.fileeaters.auth.login({
+  await harness.exposures.splice.auth.getSession({ includePermissions: false });
+  await harness.exposures.splice.auth.login({
     email: "creator@example.com",
     password: "StrongPassword!123",
   });
-  await harness.exposures.fileeaters.auth.sendOtp({
+  await harness.exposures.splice.auth.sendOtp({
     target: "creator@example.com",
     purpose: "register",
   });
-  await harness.exposures.fileeaters.auth.verifyOtp({
+  await harness.exposures.splice.auth.verifyOtp({
     challengeId: "otp_123",
     purpose: "register",
     otpCode: "123456",
   });
-  await harness.exposures.fileeaters.auth.register({
+  await harness.exposures.splice.auth.register({
     email: "creator@example.com",
     password: "StrongPassword!123",
     otpVerificationToken: "otp-token",
     roles: ["creator"],
   });
-  await harness.exposures.fileeaters.auth.forgotPassword({ email: "creator@example.com" });
-  await harness.exposures.fileeaters.auth.resetPassword({
+  await harness.exposures.splice.auth.forgotPassword({ email: "creator@example.com" });
+  await harness.exposures.splice.auth.resetPassword({
     email: "creator@example.com",
     otpVerificationToken: "otp-token",
     newPassword: "StrongPassword!456",
   });
-  await harness.exposures.fileeaters.observability.getMetrics();
-  await harness.exposures.fileeaters.observability.annotateIncident({
+  await harness.exposures.splice.observability.getMetrics();
+  await harness.exposures.splice.observability.annotateIncident({
     source: "desktop-operations-ui",
     severity: "critical",
     note: "retry exhausted",
@@ -702,7 +702,7 @@ test("preload uses only namespaced v1 channels when invoking ipc", async () => {
     remediationLink: "/admin/jobs/job:1",
     auditEventId: "audit:1",
   });
-  await harness.exposures.fileeaters.qc.evaluatePack({
+  await harness.exposures.splice.qc.evaluatePack({
     requestId: "qc-1",
     submissionId: "sub-1",
     actorId: "creator-1",
@@ -718,9 +718,9 @@ test("preload uses only namespaced v1 channels when invoking ipc", async () => {
       containsUnsupportedNameTokens: false,
     },
   });
-  await harness.exposures.fileeaters.qc.listRules({ includeDisabled: true });
-  await harness.exposures.fileeaters.qc.getResults({ submissionId: "sub-1" });
-  await harness.exposures.fileeaters.qc.exportReport({
+  await harness.exposures.splice.qc.listRules({ includeDisabled: true });
+  await harness.exposures.splice.qc.getResults({ submissionId: "sub-1" });
+  await harness.exposures.splice.qc.exportReport({
     submissionId: "sub-1",
     runId: "qc-1",
     generatedAt: "2026-03-02T00:01:00.000Z",
@@ -742,27 +742,27 @@ test("preload uses only namespaced v1 channels when invoking ipc", async () => {
       },
     ],
   });
-  await harness.exposures.fileeaters.notifications.list({
+  await harness.exposures.splice.notifications.list({
     actorId: "creator-1",
     actorRole: "creator",
     includeRead: true,
   });
-  await harness.exposures.fileeaters.notifications.markRead({
+  await harness.exposures.splice.notifications.markRead({
     actorId: "creator-1",
     actorRole: "creator",
     notificationIds: ["ntf-1"],
   });
-  await harness.exposures.fileeaters.notifications.markAllRead({
+  await harness.exposures.splice.notifications.markAllRead({
     actorId: "creator-1",
     actorRole: "creator",
   });
-  await harness.exposures.fileeaters.notifications.retry({
+  await harness.exposures.splice.notifications.retry({
     actorId: "reviewer-1",
     actorRole: "reviewer",
     notificationId: "ntf-3",
   });
-  await harness.exposures.fileeaters.admin.qcPolicy.getActive();
-  await harness.exposures.fileeaters.admin.qcPolicy.updateActive({
+  await harness.exposures.splice.admin.qcPolicy.getActive();
+  await harness.exposures.splice.admin.qcPolicy.updateActive({
     requestId: "req-1",
     actorId: "admin-1",
     actorRole: "admin",
@@ -779,15 +779,15 @@ test("preload uses only namespaced v1 channels when invoking ipc", async () => {
       ],
     },
   });
-  await harness.exposures.fileeaters.admin.configs.rollback({
+  await harness.exposures.splice.admin.configs.rollback({
     id: "cfg-1",
     actorId: "admin-1",
     actorRole: "admin",
     reason: "Undo unsafe publish",
     confirmation: "ROLLBACK",
   });
-  await harness.exposures.fileeaters.desktop.verifySecurityConfig();
-  await harness.exposures.fileeaters.audit.listSecurityEvents({ limit: 3 });
+  await harness.exposures.splice.desktop.verifySecurityConfig();
+  await harness.exposures.splice.audit.listSecurityEvents({ limit: 3 });
 
   assert.deepEqual(
     harness.calls.map((entry) => entry.channel).sort(),
@@ -795,6 +795,6 @@ test("preload uses only namespaced v1 channels when invoking ipc", async () => {
   );
 
   for (const call of harness.calls) {
-    assert.match(call.channel, /^fileeaters\.[a-z0-9.-]+\.v1$/);
+    assert.match(call.channel, /^splice\.[a-z0-9.-]+\.v1$/);
   }
 });

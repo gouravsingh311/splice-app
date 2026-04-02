@@ -8,7 +8,7 @@ const {
 
 test("all registered IPC channels are namespaced and versioned", () => {
   for (const channel of Object.keys(IPC_CONTRACT_REGISTRY)) {
-    assert.match(channel, /^fileeaters\.[a-z0-9.-]+\.v1$/);
+    assert.match(channel, /^splice\.[a-z0-9.-]+\.v1$/);
   }
 });
 

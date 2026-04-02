@@ -47,7 +47,7 @@ def make_smtp_adapter():
         port=int(os.environ["SMTP_PORT"]),
         username=os.environ.get("SMTP_USERNAME", ""),
         password=os.environ.get("SMTP_PASSWORD", ""),
-        from_email=os.environ.get("SMTP_FROM_EMAIL", "noreply@fileeaters.local"),
+        from_email=os.environ.get("SMTP_FROM_EMAIL", "noreply@splice.local"),
     )
 
 
@@ -60,7 +60,7 @@ def test_smtp_adapter_sends_plain_email():
     """SmtpEmailAdapter.send_email returns True and delivers to Mailtrap inbox."""
     adapter = make_smtp_adapter()
     result = adapter.send_email(
-        to_email="notifications@fileeaters.com",
+        to_email="notifications@splice.com",
         subject="[Live Test] SMTP adapter smoke",
         html_body="<b>SMTP adapter is working.</b>",
     )
@@ -73,7 +73,7 @@ def test_smtp_adapter_sends_branded_template():
     time.sleep(3)  # Mailtrap free plan: 550 rate limit on rapid sequences
     adapter = make_smtp_adapter()
     result = adapter.send_email(
-        to_email="notifications@fileeaters.com",
+        to_email="notifications@splice.com",
         subject="[Live Test] Branded email template",
         html_body=(
             "<p>Pack <b>Summer Vibes Vol. 1</b> has been <strong>approved</strong>.</p>"
@@ -123,7 +123,7 @@ def test_api_emit_notification_email_returns_sent_status():
             "channel": "email",
             "title": "Live Test — Approved",
             "message": "<b>Your submission has been approved!</b>",
-            "recipient_email": "notifications@fileeaters.com",
+            "recipient_email": "notifications@splice.com",
             "submission_id": f"live-smtp-test-{int(__import__('time').time())}",
         },
         headers=internal_headers(),
@@ -200,7 +200,7 @@ def test_api_notification_retry_resends_email():
             "channel": "email",
             "title": "QC Failed — Please Revise",
             "message": "<p>Pack failed QC. Please review and resubmit.</p>",
-            "recipient_email": "notifications@fileeaters.com",
+            "recipient_email": "notifications@splice.com",
             "submission_id": f"live-retry-{ts}",
         },
         headers=internal_headers(),
